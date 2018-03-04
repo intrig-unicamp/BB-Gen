@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import string
 import sys
 import random
@@ -7,12 +8,6 @@ from random import shuffle
 
 class generator:
 
-	# print macsrc
-	# print macdst
-	# print macsrc_h
-	# print macdst_h
-	# print ipdst
-	# print ipsrc
 	def __init__(self, name):
 		self.name = name
 		self.ipdst = []
@@ -21,11 +16,11 @@ class generator:
 		self.macdst = []
 		self.macsrc_h = []
 		self.macdst_h = []
-		self.u = []
+		self.portsrc = []
+		self.portdst = []
 
 
 	def ip_gen(self, entries):
-		#self.entries = entries
 		
 		pkts = []
 		
@@ -55,8 +50,7 @@ class generator:
 
 
 	def mac_gen(self, entries):
-		#self.entries = entries
-		
+	
 		pkts = []
 
 		#The next code generates random IPv6 and MAC address
@@ -106,12 +100,16 @@ class generator:
 
 
 	def port_gen(self, entries):
-		#self.entries = entries
-		for i in range(65535):
-		    self.u.append(i)
-		shuffle(self.u)
-		self.v = []
-		for i in range(65535):
-		    self.v.append(i)
-		shuffle(self.v)
-	
+		u = []
+		portsrc_c = ""
+		porrdst_c = ""
+		for i in range(49152,65535):
+		    u.append(i)
+		shuffle(u)
+		
+		for m in range(entries):
+			portsrc_c = str(u[0])
+			porrdst_c = str(u[1])
+			self.portsrc.append(portsrc_c)
+			self.portdst.append(porrdst_c)
+			shuffle(u)
