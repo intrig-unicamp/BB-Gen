@@ -56,7 +56,7 @@ class create_pkt:
 		self.pkts = []
 
 
-	def pkt_gen(self, entries, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, pktsize, prot, tra, pname):
+	def pkt_gen(self, entries, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, pktsize, prot, tra, pname, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e):
 
 		mil = 1
 		if entries == 1000000:
@@ -70,16 +70,28 @@ class create_pkt:
 				for p in range(0, entries):
 					if prot == 0:
 						#ipv4
-						self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/UDP(dport=10,sport=20)/Raw(RandString(size=pktsize[i])))				
+						if tra == 0:
+							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/TCP(dport=10,sport=1)/Raw(RandString(size=pktsize[i])))				
+						else:
+							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/UDP(dport=portdst[p],sport=portsrc[p])/Raw(RandString(size=pktsize[i])))				
 					if prot == 1:
 						#ipv6
-						self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IPv6(dst=ipdst[p],src=ipsrc[p])/Raw(RandString(size=pktsize[i])))
+						if tra == 0:
+							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IPv6(dst=ipdst[p],src=ipsrc[p])/Raw(RandString(size=pktsize[i])))
+						else:
+							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IPv6(dst=ipdst[p],src=ipsrc[p])/Raw(RandString(size=pktsize[i])))
 					if prot == 2:
 						#vxlan
-						self.pkts.append(Ether(dst='06:0f:24:05:92:2c',src= 'a7:3c:48:02:8f:e1')/IP(dst='10.0.0.1',src='10.0.0.11')/UDP(sport=50000,dport=4789)/VXLAN(vni=100)/Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/TCP(dport=10,sport=20)/Raw(RandString(size=pktsize[i])))
+						if tra == 0:
+							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/TCP(sport=portdst[p],dport=portsrc[p])/VXLAN(vni=100)/Ether(dst=macdst_e[p],src=macsrc_e[p])/IP(dst=ipdst_e[p],src=ipsrc_e[p])/TCP(dport=portdst_e[p],sport=portsrc_e[p])/Raw(RandString(size=pktsize[i])))
+						else:
+							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/UDP(sport=portdst[p],dport=portsrc[p])/VXLAN(vni=100)/Ether(dst=macdst_e[p],src=macsrc_e[p])/IP(dst=ipdst_e[p],src=ipsrc_e[p])/TCP(dport=portdst_e[p],sport=portsrc_e[p])/Raw(RandString(size=pktsize[i])))
 					if prot == 3:
 						#gre
-						self.pkts.append(Ether(dst='aa:1b:eb:df:44:3d',src=macsrc[p])/IP(dst='4.0.0.1',src='4.0.0.10')/GRE()/IP(dst=ipdst[p],src=ipsrc[p])/TCP(sport=20, dport=80)/Raw(RandString(size=pktsize[i])))
+						if tra == 0:
+							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/GRE()/IP(dst=ipdst[p],src=ipsrc[p])/TCP(dport=portdst[p], sport=portsrc[p])/Raw(RandString(size=pktsize[i])))
+						else:
+							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/GRE()/IP(dst=ipdst[p],src=ipsrc[p])/UDP(dport=portdst[p], sport=portsrc[p])/Raw(RandString(size=pktsize[i])))
 					if prot == 4:
 						#l2
 						self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/Raw(RandString(size=pktsize[i])))				

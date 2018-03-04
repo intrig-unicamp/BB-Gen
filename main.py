@@ -56,14 +56,21 @@ e.get_prot_type(args.type)
 e.get_tra_type(args.transport)
 
 #Get IP, MAC and Port list
-f = generator('A')
+f = generator('principal')
 f.ip_gen(entries,ranip)
 f.mac_gen(entries,ranmac)
 f.port_gen(entries,ranport)
 
+g = generator('encap')
+g.ip_gen(entries,ranip)
+g.mac_gen(entries,ranmac)
+g.port_gen(entries,ranport)
+
+print e.tra
+
 #Create PCAP
-g = create_pkt('A')
-g.pkt_gen(entries, f.macdst, f.macsrc, f.ipdst, f.ipsrc, f.portdst, f.portsrc, e.pktsize, e.prot, e.tra, pname)
+h = create_pkt('A')
+h.pkt_gen(entries, f.macdst, f.macsrc, f.ipdst, f.ipsrc, f.portdst, f.portsrc, e.pktsize, e.prot, e.tra, pname, g.macdst, g.macsrc, g.ipdst, g.ipsrc, g.portdst, g.portsrc)
 
 print f.ipdst
 print f.ipsrc
@@ -71,3 +78,10 @@ print f.macdst
 print f.macsrc
 print f.portsrc
 print f.portdst
+
+print g.ipdst
+print g.ipsrc
+print g.macdst
+print g.macsrc
+print g.portsrc
+print g.portdst

@@ -108,8 +108,8 @@ class generator:
 
 	def port_gen(self, entries, dist):
 		u = []
-		portsrc_c = ""
-		porrdst_c = ""
+		portsrc_c = 0
+		porrdst_c = 0
 		for i in range(49152,65535):
 		    u.append(i)
 		shuffle(u)
