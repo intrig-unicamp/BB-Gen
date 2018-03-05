@@ -5,6 +5,10 @@ import sys
 import random
 from random import shuffle
 
+# The generator Class creates the list of IP address, MAC address and Port numbers
+# with the defined distribution:
+#		If dist = 0 Generates randorm distibution
+#		If dist = 1 Generates simple distibution
 
 class generator:
 
@@ -19,46 +23,64 @@ class generator:
 		self.portsrc = []
 		self.portdst = []
 
-	#If dist = 0 Generates randorm IP distibution
-	#If dist = 1 Generates simple IP distibution
-	def ip_gen(self, entries, dist):
-		
+	#Generates IP address
+	def ip_gen(self, entries, dist, data):
 		pkts = []
-		
 		r = []
 		for i in range(1,254):
 		    r.append(i)
 		shuffle(r)
-		u = []
+		k = []
+		for i in range(16):
+		    k.append(i)
+		shuffle(k)
 		ipsrc_c = ""
 		ipdst_c = ""
 		s = 0
-		for m in range(entries):
-			if s == 0:
+		#For IPv6
+		if data == 1:
+			for m in range(entries):
 				l = 0
 				ipsrc_c = ""
 				ipdst_c = ""
-				for i in range(4):
-					if l == 1:
-						ipdst_c = ipdst_c + "." + str(r[0])
-						ipsrc_c = ipsrc_c + "." + str(r[1])
+				for i in range(32):
+					if l == 4:
+						ipdst_c = ipdst_c + ":" + format(k[0], '01x')
+						ipsrc_c = ipsrc_c + ":" + format(k[1], '01x')
 						l = 0
 					else:
-						ipdst_c = ipdst_c + str(r[0])
-						ipsrc_c = ipsrc_c + str(r[1])
+						ipdst_c = ipdst_c + format(k[0], '01x')
+						ipsrc_c = ipsrc_c + format(k[1], '01x')
 					l = l + 1
-					shuffle(r)
-					if dist == 1:
-						s = 1
-			self.ipdst.append(ipdst_c)
-			self.ipsrc.append(ipsrc_c)
+					shuffle(k)
+				self.ipdst.append(ipdst_c)
+				self.ipsrc.append(ipsrc_c)
+		#For ipv4
+		else:
+			for m in range(entries):
+				if s == 0:
+					l = 0
+					ipsrc_c = ""
+					ipdst_c = ""
+					for i in range(4):
+						if l == 1:
+							ipdst_c = ipdst_c + "." + str(r[0])
+							ipsrc_c = ipsrc_c + "." + str(r[1])
+							l = 0
+						else:
+							ipdst_c = ipdst_c + str(r[0])
+							ipsrc_c = ipsrc_c + str(r[1])
+						l = l + 1
+						shuffle(r)
+						#Disable main loop for simple traffic
+						if dist == 1:
+							s = 1
+				self.ipdst.append(ipdst_c)
+				self.ipsrc.append(ipsrc_c)
 
+	#Generates MAC address
 	def mac_gen(self, entries, dist):
-	
 		pkts = []
-
-		#The next code generates random IPv6 and MAC address
-		#########
 		k = []
 		for i in range(16):
 		    k.append(i)
@@ -99,6 +121,7 @@ class generator:
 							macdst_hex = macdst_hex + format(k[1], '01x')
 					l = l + 1
 					shuffle(k)
+					#Disable main loop for simple traffic
 					if dist == 1:
 						s = 1
 			self.macdst.append(macdst_c)
@@ -106,6 +129,7 @@ class generator:
 			self.macdst_h.append(macdst_hex)
 			self.macsrc_h.append(macsrc_hex)
 
+	#Generates Port numbers from 49152 to 65535
 	def port_gen(self, entries, dist):
 		u = []
 		portsrc_c = 0
@@ -113,11 +137,11 @@ class generator:
 		for i in range(49152,65535):
 		    u.append(i)
 		shuffle(u)
-		
 		for m in range(entries):
-			portsrc_c = str(u[0])
-			porrdst_c = str(u[1])
+			portsrc_c = u[0]
+			porrdst_c = u[1]
 			self.portsrc.append(portsrc_c)
 			self.portdst.append(porrdst_c)
+			#Disable shuffle for simple traffic
 			if dist == 0:
 				shuffle(u)

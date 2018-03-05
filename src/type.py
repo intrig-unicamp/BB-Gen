@@ -5,28 +5,36 @@ import sys
 import random
 from random import shuffle
 
+# The pkt_type Class defines the type of pkts to create, the transport protocol UDP/TCP
+# and defines the distribution of the data
+#
+# Protocols -p
+# 0	IPv4
+# 1	IPv6
+# 2	VXLAN
+# 3	GRE
+# 4	L2
+#
+# Transport Protol -t
+# 0	TCP
+# 1	UDP
+#
+# Random IP, MAC, PORT
+# 0	random
+# 1	simple
 
 class pkt_type:
 
-	# print macsrc
-	# print macdst
-	# print macsrc_h
-	# print macdst_h
-	# print ipdst
-	# print ipsrc
 	def __init__(self, name):
 		self.name = name
 		self.pktsize = []
 		self.prot = 0
 		self.tra = 0
+		self.ranip = 1
+		self.ranmac = 1
+		self.ranport = 1
 
-	def get_prot_type(self, data):
-		#Protocols -p
-		#0	IPv4
-		#1	IPv6
-		#2	VXLAN
-		#3	GRE
-		#4	L2
+	def get_prot_type(self, data, tra):
 		if data == 'ipv6':
 			self.pktsize = [6, 70, 198, 454, 966, 1222, 1460]
 			self.prot = 1
@@ -40,14 +48,28 @@ class pkt_type:
 			self.pktsize = [18, 82, 210, 466, 978, 1234, 1472]
 			self.prot = 4
 		else:
-			self.pktsize = [18, 82, 210, 466, 978, 1234, 1472]
+			if tra == 0:
+				self.pktsize = [6, 70, 198, 454, 966, 1222, 1460]
+			else:
+				self.pktsize = [18, 82, 210, 466, 978, 1234, 1472]
 			self.prot = 0
 
 	def get_tra_type(self, data):
-		#Transport Protol -t
-		#0	TCP
-		#1	UDP
 		if data == 'udp':
 			self.tra = 1
 		else:
 			self.tra = 0
+
+	def get_random(self, data):
+		if data[0] == True:
+			self.ranip = 0
+		else:
+			self.ranip = 1
+		if data[1] == True:
+			self.ranmac = 0
+		else:
+			self.ranmac = 1
+		if data[2] == True:
+			self.ranport = 0
+		else:
+			self.ranport = 1

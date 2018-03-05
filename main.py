@@ -11,6 +11,12 @@ from src.data import *
 from src.type import *
 from src.packets import *
 
+debug_flag = False
+
+def log(s):
+    global debug_flag
+    if debug_flag == True:
+        print s
 
 parser = argparse.ArgumentParser(description='BB-gen PCAP generator')
 
@@ -21,6 +27,7 @@ parser.add_argument('-name', metavar='', help='PCAP name', dest='name', action="
 parser.add_argument('--rnip', help='Random IP', dest='rnip', action='store_true', default=False)
 parser.add_argument('--rnmac', help='Random MAC', dest='rnmac', action='store_true', default=False)
 parser.add_argument('--rnport', help='Random Port', dest='rnport', action='store_true', default=False)
+parser.add_argument('--debug', help='Debug enable', dest='debug_flag', action='store_true', default=False)
 
 parser.add_argument('-A', action='append_const', dest='const_collection',
                     const='value-1-to-append',
@@ -34,54 +41,56 @@ parser.add_argument('-v', action='version', version='BB-gen 1.0')
 
 args = parser.parse_args()
 
+#Number of Entries
 entries = args.num
+log("Number of Entries: %s" % (entries))
+
+#PCAP name TODO
 pname = args.name
+log("PCAP and Trace name: %s" % (pname))
 
-if args.rnip == True:
-	ranip = 0
-else:
-	ranip = 1
-if args.rnmac == True:
-	ranmac = 0
-else:
-	ranmac = 1
-if args.rnport == True:
-	ranport = 0
-else:
-	ranport = 1
+#Select random data
+val_random = [args.rnip, args.rnmac, args.rnport] 
 
-#Get Protocol type and transport protocol
-e = pkt_type('A')
-e.get_prot_type(args.type)
+#Enable debug
+debug_flag = args.debug_flag
+
+#Get Protocol type, transport protocol and distribution
+e = pkt_type('Protocol')
 e.get_tra_type(args.transport)
+log("Transport: %s, reference value: %d" % (args.transport, e.tra))
+e.get_prot_type(args.type, e.tra)
+log("Protocol: %s, reference value: %d" % (args.type, e.prot))
+e.get_random(val_random)
+log("Random IP %s, Random MAC %s, Random Protocol %s" % (val_random[0], val_random[1], val_random[2]))
+log("Random data size: %s" % (e.pktsize))
 
 #Get IP, MAC and Port list
+log("Principal Headers info")
 f = generator('principal')
-f.ip_gen(entries,ranip)
-f.mac_gen(entries,ranmac)
-f.port_gen(entries,ranport)
+f.ip_gen(entries,e.ranip,e.prot)
+log("IP source list: \n %s" % (f.ipsrc))
+log("IP destination list: \n %s" % (f.ipdst))
+f.mac_gen(entries,e.ranmac)
+log("MAC source list: \n %s" % (f.macsrc))
+log("MAC destination list: \n %s" % (f.macdst))
+f.port_gen(entries,e.ranport)
+log("Port source list: \n %s" % (f.portsrc))
+log("Port destination list: \n %s" % (f.portdst))
 
+#Get encapsulated IP, MAC and Port list, for VXLAN and GRE
+log("Encapsulated Headers info")
 g = generator('encap')
-g.ip_gen(entries,ranip)
-g.mac_gen(entries,ranmac)
-g.port_gen(entries,ranport)
-
-print e.tra
+g.ip_gen(entries,e.ranip,e.prot)
+log("IP source list: \n %s" % (g.ipsrc))
+log("IP destination list: \n %s" % (g.ipdst))
+g.mac_gen(entries,e.ranmac)
+log("MAC source list: \n %s" % (g.macsrc))
+log("MAC destination list: \n %s" % (g.macdst))
+g.port_gen(entries,e.ranport)
+log("Port source list: \n %s" % (g.portsrc))
+log("Port destination list: \n %s" % (g.portdst))
 
 #Create PCAP
 h = create_pkt('A')
 h.pkt_gen(entries, f.macdst, f.macsrc, f.ipdst, f.ipsrc, f.portdst, f.portsrc, e.pktsize, e.prot, e.tra, pname, g.macdst, g.macsrc, g.ipdst, g.ipsrc, g.portdst, g.portsrc)
-
-print f.ipdst
-print f.ipsrc
-print f.macdst
-print f.macsrc
-print f.portsrc
-print f.portdst
-
-print g.ipdst
-print g.ipsrc
-print g.macdst
-print g.macsrc
-print g.portsrc
-print g.portdst
