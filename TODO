@@ -1,0 +1,9 @@
+TODO
+
+-Update PCAP name
+-Define IPv4 with and without TCP/UDP
+-TCP/UDP for encapsulated data
+-Calculate the pkt sizes for UDP/TCP encapsulated
+-ADD more protocols
+-Set the correct values information for the tracefiles
+-Add the tracefiles setup for MACSAD use case

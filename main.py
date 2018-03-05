@@ -6,10 +6,13 @@ import sys
 import random
 from random import shuffle
 import argparse
+from argparse import ArgumentParser
+
 
 from src.data import *
 from src.type import *
 from src.packets import *
+from lib.arg_parse import *
 
 debug_flag = False
 
@@ -18,16 +21,55 @@ def log(s):
     if debug_flag == True:
         print s
 
-parser = argparse.ArgumentParser(description='BB-gen PCAP generator')
+parser = ArgumentParser(description='BB-gen PCAP generator', formatter_class=SmartFormatter)
 
-parser.add_argument('-p', metavar='', help='Type of packet: ipv4, ipv6, vxlan, gre, l2', dest='type', action="store", default='ipv4')
-parser.add_argument('-t', metavar='', help='TCP or UDP', dest='transport', action="store", choices=['tcp', 'udp'], default='tcp')
-parser.add_argument('-n', metavar='', help='Number of entries', dest='num', action="store", type=int, default=10)
-parser.add_argument('-name', metavar='', help='PCAP name', dest='name', action="store", default="test")
-parser.add_argument('--rnip', help='Random IP', dest='rnip', action='store_true', default=False)
-parser.add_argument('--rnmac', help='Random MAC', dest='rnmac', action='store_true', default=False)
-parser.add_argument('--rnport', help='Random Port', dest='rnport', action='store_true', default=False)
-parser.add_argument('--debug', help='Debug enable', dest='debug_flag', action='store_true', default=False)
+parser.add_argument('-p', metavar='', 
+				help="R|Type of packet:\n"
+					"ipv4, ipv6, vxlan, gre, l2\n"
+					"Default: ipv4", 
+					dest='type', action="store", default='ipv4')
+parser.add_argument('-t', metavar='', 
+				help="R|Specifies the transport protocol:\n"
+					"TCP or UDP\n"
+					"For VXLAN and GRE is the encapsulated protocol\n"
+					"Default: tcp", 
+					dest='transport', action="store", 
+					choices=['tcp', 'udp'], default='tcp')
+parser.add_argument('-n', metavar='', 
+				help="R|Number of entries\n"
+					"Default: 100", 
+					dest='num', action="store", 
+					type=int, default=10)
+parser.add_argument('-name', metavar='', 
+				help="R|PCAP name\n"
+					"Default: ipv4", 
+					dest='name', action="store", 
+					default="test")
+parser.add_argument('--rnip', 
+				help="R|Random IP\n"
+					"Default: False", 
+					dest='rnip', action='store_true', 
+					default=False)
+parser.add_argument('--rnmac', 
+				help="R|Random MAC\n"
+					"Default: False", 
+					dest='rnmac', action='store_true', 
+					default=False)
+parser.add_argument('--rnport', 
+				help="R|Random Port\n"
+					"Default: False", dest='rnport', action='store_true', 
+					default=False)
+parser.add_argument('-pkt','--packetsizes',nargs=1,
+				help="R|Specify here the required packetsize\n"
+					"In case of more than one, separated the list with coma\n"
+					"e.g. 64,215,514.\n" 
+					"Default: 64",
+					required=False,
+					default=['64'])
+
+
+parser.add_argument('--debug', help='Debug enable', dest='debug_flag', action='store_true', 
+					default=False)
 
 parser.add_argument('-A', action='append_const', dest='const_collection',
                     const='value-1-to-append',
@@ -51,6 +93,9 @@ log("PCAP and Trace name: %s" % (pname))
 
 #Select random data
 val_random = [args.rnip, args.rnmac, args.rnport] 
+
+#Get Pakcet sizes
+packet_sizes = (args.packetsizes[0]).split(',')
 
 #Enable debug
 debug_flag = args.debug_flag
@@ -93,4 +138,22 @@ log("Port destination list: \n %s" % (g.portdst))
 
 #Create PCAP
 h = create_pkt('A')
-h.pkt_gen(entries, f.macdst, f.macsrc, f.ipdst, f.ipsrc, f.portdst, f.portsrc, e.pktsize, e.prot, e.tra, pname, g.macdst, g.macsrc, g.ipdst, g.ipsrc, g.portdst, g.portsrc)
+h.pkt_gen(
+			entries, 
+			f.macdst, 
+			f.macsrc, 
+			f.ipdst, 
+			f.ipsrc, 
+			f.portdst, 
+			f.portsrc, 
+			e.pktsize, 
+			e.prot, 
+			e.tra, 
+			pname, 
+			g.macdst, 
+			g.macsrc, 
+			g.ipdst, 
+			g.ipsrc, 
+			g.portdst, 
+			g.portsrc
+		)
