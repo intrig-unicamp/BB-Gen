@@ -20,6 +20,7 @@ BB-gen PCAP generator
     --rnip      Random IP  
     --rnmac     Random MAC  
     --rnport    Random Port  
+    -pkt        Required packetsize
     --debug     Debug enable  
     -A          Add different values to list  
     -B          Add different values to list  

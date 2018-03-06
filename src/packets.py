@@ -56,17 +56,17 @@ def create_trace(prot, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, 
 	os.system(FILE)
 	return
 
-def remove_copy_pcap(prot, entries):
+def remove_copy_pcap(fprefix, prot, entries):
 	if prot == 0:
-		rem = "rm PCAP/nfpa.trPR_ipv4_%d_random_*"  % (entries)
+		rem = "rm %s_ipv4_%d_random_*"  % (fprefix, entries)
 	if prot == 1:
-		rem = "rm PCAP/nfpa.trPR_ipv6_%d_random_*"  % (entries)
+		rem = "rm %s_ipv6_%d_random_*"  % (fprefix, entries)
 	if prot == 2:
-		rem = "rm PCAP/nfpa.trPR_vxlan_%d_random_*"  % (entries)
+		rem = "rm %s_vxlan_%d_random_*"  % (fprefix, entries)
 	if prot == 3:
-		rem = "rm PCAP/nfpa.trPR_gre_%d_random_*"  % (entries)
+		rem = "rm %s_gre_%d_random_*"  % (fprefix, entries)
 	if prot == 4:
-		rem = "rm PCAP/nfpa.trPR_l2_%d_random_*"  % (entries)
+		rem = "rm %s_l2_%d_random_*"  % (fprefix, entries)
 	os.system(rem)
 	return
 
@@ -76,7 +76,7 @@ class create_pkt:
 		self.pkts = []
 
 
-	def pkt_gen(self, entries, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, pktsize, prot, tra, pname, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e):
+	def pkt_gen(self, entries, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, pktsize, prot, tra, pname_arg, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e):
 		mil = 1
 		if entries == 1000000:
 			entries = 10000
@@ -84,6 +84,11 @@ class create_pkt:
 		f = 0
 		filenames = []
 		first = 0
+		if pname_arg == "test":
+			pprefix = "./PCAP/nfpa.trPR"
+		else:
+			pprefix = "./PCAP/"+pname_arg
+
 		for i in range(0, 7):
 			for j in range(0, mil):
 				for p in range(0, entries):
@@ -93,57 +98,54 @@ class create_pkt:
 							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/TCP(dport=portdst[p],sport=portsrc[p])/Raw(RandString(size=pktsize[i])))				
 						else:
 							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/UDP(dport=portdst[p],sport=portsrc[p])/Raw(RandString(size=pktsize[i])))				
-					if prot == 1:
+					elif prot == 1:
 						#ipv6
 						if tra == 0:
 							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IPv6(dst=ipdst[p],src=ipsrc[p])/Raw(RandString(size=pktsize[i])))
 						else:
 							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IPv6(dst=ipdst[p],src=ipsrc[p])/Raw(RandString(size=pktsize[i])))
-					if prot == 2:
+					elif prot == 2:
 						#vxlan
 						self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/UDP(sport=portdst[p],dport=4789)/VXLAN(vni=100)/Ether(dst=macdst_e[p],src=macsrc_e[p])/IP(dst=ipdst_e[p],src=ipsrc_e[p])/TCP(dport=portdst_e[p],sport=portsrc_e[p])/Raw(RandString(size=pktsize[i])))
-					if prot == 3:
+					elif prot == 3:
 						#gre
 						if tra == 0:
 							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/GRE()/IP(dst=ipdst[p],src=ipsrc[p])/TCP(dport=portdst[p], sport=portsrc[p])/Raw(RandString(size=pktsize[i])))
 						else:
 							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/GRE()/IP(dst=ipdst[p],src=ipsrc[p])/UDP(dport=portdst[p], sport=portsrc[p])/Raw(RandString(size=pktsize[i])))
-					if prot == 4:
+					elif prot == 4:
 						#l2
-						self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/Raw(RandString(size=pktsize[i])))				
+						self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/Raw(RandString(size=pktsize[i])))
+
 					if f == 0:
 							create_trace(prot, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, mil, p, i, macsrc_e, macdst_e, ipsrc_e, ipdst_e, portsrc_e, portdst_e)
 
 				if prot == 0:
 					#ipv4
 					if tra == 0:
-						pname = "./PCAP/nfpa.trPR_ipv4_%d_random_%d.%dbytes.pcap" % (entries, j, pktsize[i]+42+12+4) 
-						filenames.append("PCAP/nfpa.trPR_ipv4_%d_random_%d.%dbytes.pcap" % (entries, j, pktsize[i]+42+12+4))
-						namef = "PCAP/nfpa.trPR_ipv4_%d_random.%dbytes.pcap" % (entries*mil, pktsize[i]+42+12+4)
+						pname = "%s_ipv4_%d_random_%d.%dbytes.pcap" % (pprefix, entries, j, pktsize[i]+42+12+4) 
+						namef = "%s_ipv4_%d_random.%dbytes.pcap" % (pprefix, entries*mil, pktsize[i]+42+12+4)
 					else:
-						pname = "./PCAP/nfpa.trPR_ipv4_%d_random_%d.%dbytes.pcap" % (entries, j, pktsize[i]+42+4) 
-						filenames.append("PCAP/nfpa.trPR_ipv4_%d_random_%d.%dbytes.pcap" % (entries, j, pktsize[i]+42+4))
-						namef = "PCAP/nfpa.trPR_ipv4_%d_random.%dbytes.pcap" % (entries*mil, pktsize[i]+42+4)
-				if prot == 1:
+						pname = "%s_ipv4_%d_random_%d.%dbytes.pcap" % (pprefix, entries, j, pktsize[i]+42+4) 
+						namef = "%s_ipv4_%d_random.%dbytes.pcap" % (pprefix, entries*mil, pktsize[i]+42+4)
+				elif prot == 1:
 					#ipv6
-					pname = "./PCAP/nfpa.trPR_ipv6_%d_random_%d.%dbytes.pcap" % (entries, j, pktsize[i]+54+4) 
-					filenames.append("PCAP/nfpa.trPR_ipv6_%d_random_%d.%dbytes.pcap" % (entries, j, pktsize[i]+54+4))
-					namef = "PCAP/nfpa.trPR_ipv6_%d_random.%dbytes.pcap" % (entries*mil, pktsize[i]+54+4)
-				if prot == 2:
+					pname = "%s_ipv6_%d_random_%d.%dbytes.pcap" % (pprefix, entries, j, pktsize[i]+54+4) 
+					namef = "%s_ipv6_%d_random.%dbytes.pcap" % (pprefix, entries*mil, pktsize[i]+54+4)
+				elif prot == 2:
 					#vxlan
-					pname = "./PCAP/nfpa.trPR_vxlan_%d_random_%d.%dbytes.pcap" % (entries, j, pktsize[i]+42+4+12+50)
-					filenames.append("PCAP/nfpa.trPR_vxlan_%d_random_%d.%dbytes.pcap" % (entries, j, pktsize[i]+42+4+12+50))
-					namef = "PCAP/nfpa.trPR_vxlan_%d_random.%dbytes.pcap" % (entries*mil, pktsize[i]+42+4+12+50)
-				if prot == 3:
+					pname = "%s_vxlan_%d_random_%d.%dbytes.pcap" % (pprefix, entries, j, pktsize[i]+42+4+12+50)
+					namef = "%s_vxlan_%d_random.%dbytes.pcap" % (pprefix, entries*mil, pktsize[i]+42+4+12+50)
+				elif prot == 3:
 					#gre
-					pname = "./PCAP/nfpa.trPR_gre_%d_random_%d.%dbytes.pcap" % (entries, j, pktsize[i]+78+4) 
-					filenames.append("PCAP/nfpa.trPR_gre_%d_random_%d.%dbytes.pcap" % (entries, j, pktsize[i]+78+4))
-					namef = "PCAP/nfpa.trPR_gre_%d_random.%dbytes.pcap" % (entries*mil, pktsize[i]+78+4)
-				if prot == 4:
+					pname = "%s_gre_%d_random_%d.%dbytes.pcap" % (pprefix, entries, j, pktsize[i]+78+4) 
+					namef = "%s_gre_%d_random.%dbytes.pcap" % (pprefix, entries*mil, pktsize[i]+78+4)
+				elif prot == 4:
 					#l2
-					pname = "./PCAP/nfpa.trPR_l2_%d_random_%d.%dbytes.pcap" % (entries, j, pktsize[i]+42+4) 
-					filenames.append("PCAP/nfpa.trPR_l2_%d_random_%d.%dbytes.pcap" % (entries, j, pktsize[i]+42+4))
-					namef = "PCAP/nfpa.trPR_l2_%d_random.%dbytes.pcap" % (entries*mil, pktsize[i]+42+4)
+					pname = "%s_l2_%d_random_%d.%dbytes.pcap" % (pprefix, entries, j, pktsize[i]+42+4) 
+					namef = "%s_l2_%d_random.%dbytes.pcap" % (pprefix, entries*mil, pktsize[i]+42+4)
+
+				filenames.append(pname)
 
 				#Create partials PCAPs
 				wrpcap(pname,self.pkts)
@@ -163,5 +165,5 @@ class create_pkt:
 			f = 1
 
 		#Remove temporary files
-		remove_copy_pcap(prot, entries)
+		remove_copy_pcap(pprefix, prot, entries)
 
