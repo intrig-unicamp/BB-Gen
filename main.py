@@ -80,10 +80,10 @@ parser.add_argument('-A', action='append_const', dest='const_collection',
                     const='value-1-to-append',
                     default=[],
                     help='Add different values to list')
-
 parser.add_argument('-B', action='append_const', dest='const_collection',
                     const='value-2-to-append',
                     help='Add different values to list')
+
 parser.add_argument('-v', action='version', version='BB-gen 1.0')
 
 args = parser.parse_args()
