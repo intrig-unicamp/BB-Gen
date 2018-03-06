@@ -33,6 +33,7 @@ class pkt_type:
 		self.ranip = 1
 		self.ranmac = 1
 		self.ranport = 1
+		self.dist_name = "simple"
 
 	def get_prot_type(self, data, tra):
 		if data == 'ipv6':
@@ -63,13 +64,26 @@ class pkt_type:
 	def get_random(self, data):
 		if data[0] == True:
 			self.ranip = 0
+			ipname = "rip"
 		else:
 			self.ranip = 1
+			ipname = "sip"
 		if data[1] == True:
 			self.ranmac = 0
+			macname = "rmac"
 		else:
 			self.ranmac = 1
+			macname = "smac"		
 		if data[2] == True:
 			self.ranport = 0
+			portname = "rport"
 		else:
 			self.ranport = 1
+			portname = "sport"
+		
+		if data[0] == True and data[1] == True and data[2] == True:
+			self.dist_name = "random"
+		elif data[0] == False and data[1] == False and data[2] == False:
+			self.dist_name = "simple"
+		else:
+			self.dist_name = ipname + "_" + macname + "_" + portname

@@ -30,7 +30,7 @@ parser.add_argument('-p', metavar='',
 					dest='type', action="store", default='ipv4')
 parser.add_argument('-t', metavar='', 
 				help="R|Specifies the transport protocol:\n"
-					"TCP or UDP\n"
+					"tcp or udp\n"
 					"For VXLAN and GRE is the encapsulated protocol\n"
 					"Default: tcp", 
 					dest='transport', action="store", 
@@ -66,7 +66,12 @@ parser.add_argument('-pkt','--packetsizes',nargs=1,
 					"Default: 64",
 					required=False,
 					default=['64'])
-
+parser.add_argument('-u', metavar='', 
+				help="R|Use Case:\n"
+					"macsad\n"
+					"Default: none", 
+					dest='use_case', action="store", 
+					choices=['macsad'], default="none")
 
 parser.add_argument('--debug', help='Debug enable', dest='debug_flag', action='store_true', 
 					default=False)
@@ -99,6 +104,9 @@ packet_sizes = (args.packetsizes[0]).split(',')
 
 #Enable debug
 debug_flag = args.debug_flag
+
+#Use Case
+use_case = args.use_case
 
 #Get Protocol type, transport protocol and distribution
 e = pkt_type('Protocol')
@@ -155,5 +163,9 @@ h.pkt_gen(
 			g.ipdst, 
 			g.ipsrc, 
 			g.portdst, 
-			g.portsrc
+			g.portsrc,
+			use_case,
+			f.macsrc_h,
+			f.macdst_h,
+			e.dist_name
 		)

@@ -21,52 +21,68 @@ from scapy.all import *
 info_line = 0
 
 #Generates the Traces files
-def create_trace(prot, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, mil, p, i, macsrc_e, macdst_e, ipsrc_e, ipdst_e, portsrc_e, portdst_e):
+def create_trace(prot, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, mil, p, i, macsrc_e, macdst_e, ipsrc_e, ipdst_e, portsrc_e, portdst_e, use_case, macsrc_h, macdst_h, tprefix, dist_name):
 	global info_line
 	if prot == 0:
-		if info_line == 0:
-			FILE = "echo \"src MAC,dst MAC,src IP,dst IP,src Port,dst Port\" " +  ">> PCAP/trace_trPR_ipv4_" + str(entries*mil) + "_random.txt"
-			os.system(FILE)
-			info_line = 1
-		FILE = "echo " + macsrc[p] + "," + macdst[p] + "," + str(ipsrc[p]) + "," + str(ipdst[p]) + "," + str(portsrc[p]) + "," + str(portdst[p]) + " >> PCAP/trace_trPR_ipv4_" + str(entries*mil) + "_random.txt"
+		if use_case == "macsad":
+			FILE = "echo " + str(ipdst[p]) + " " + macdst_h[p] + " 1 >> " + tprefix + "_ipv4_" + str(entries*mil) + "_" + dist_name + ".txt"
+			FILE2 = "echo " + macsrc[p] + " 0 >> " + tprefix + "_l2_" + str(entries*mil) + "_" + dist_name + ".txt"
+			os.system(FILE2)
+			FILE2 = "echo " + macdst[p] + " 1 >> " + tprefix + "_l2_" + str(entries) + "_" + dist_name + ".txt"
+			os.system(FILE2)
+		else:
+			if info_line == 0:
+				FILE = "echo \"src MAC,dst MAC,src IP,dst IP,src Port,dst Port\" " +  " >> " + tprefix + "_ipv4_" + str(entries*mil) + "_" + dist_name + ".txt"
+				os.system(FILE)
+				info_line = 1
+			FILE = "echo " + macsrc[p] + "," + macdst[p] + "," + str(ipsrc[p]) + "," + str(ipdst[p]) + "," + str(portsrc[p]) + "," + str(portdst[p]) + " >> " + tprefix + "_ipv4_" + str(entries*mil) + "_" + dist_name + ".txt"
 	if prot == 1:
-		if info_line == 0:
-			FILE = "echo \"src MAC, dst MAC, src IP, dst IP, src Port, dst Port\" " +  ">> PCAP/trace_trPR_ipv6_" + str(entries*mil) + "_random.txt"
-			os.system(FILE)
-			info_line = 1
-		FILE = "echo " + macsrc[p] + "," + macdst[p] + "," + str(ipsrc[p]) + "," + str(ipdst[p]) + "," + str(portsrc[p]) + "," + str(portdst[p]) + " >> PCAP/trace_trPR_ipv6_" + str(entries*mil) + "_random.txt"
+		if use_case == "macsad":
+			FILE = "echo " + str(ipdst[p]) + " " + macdst_h[p] + " 1 >> " + tprefix + "_ipv6_" + str(entries*mil) + "_" + dist_name + ".txt"
+		else:
+			if info_line == 0:
+				FILE = "echo \"src MAC, dst MAC, src IP, dst IP, src Port, dst Port\" " +  ">> " + tprefix + "_ipv6_" + str(entries*mil) + "_" + dist_name + ".txt"
+				os.system(FILE)
+				info_line = 1
+			FILE = "echo " + macsrc[p] + "," + macdst[p] + "," + str(ipsrc[p]) + "," + str(ipdst[p]) + "," + str(portsrc[p]) + "," + str(portdst[p]) + " >> " + tprefix + "_ipv6_" + str(entries*mil) + "_" + dist_name + ".txt"
 	if prot == 2:
-		if info_line == 0:
-			FILE = "echo \"src MAC, dst MAC, src IP, dst IP, src Port, dst Port, enc src MAC, enc dst MAC, enc src IP, enc dst IP, enc src Port, enc dst Port\" " +  ">> PCAP/trace_trPR_vxlan_" + str(entries*mil) + "_random.txt"
-			os.system(FILE)
-			info_line = 1
-		FILE = "echo " + macsrc[p] + "," + macdst[p] + "," + str(ipsrc[p]) + "," + str(ipdst[p]) + "," + str(portsrc[p]) + "," + str(4789) + macsrc_e[p] + "," + macdst_e[p] + "," + str(ipsrc_e[p]) + "," + str(ipdst_e[p]) + "," + str(portsrc_e[p]) + "," + str(portdst_e[p]) + " >> PCAP/trace_trPR_vxlan_" + str(entries*mil) + "_random.txt"
+		if use_case == "macsad":
+			FILE = "echo " + str(ipdst[p]) + " 1 >> " + tprefix + "_vxlan_" + str(entries) + "_" + dist_name + ".txt"
+		else:
+			if info_line == 0:
+				FILE = "echo \"src MAC, dst MAC, src IP, dst IP, src Port, dst Port, enc src MAC, enc dst MAC, enc src IP, enc dst IP, enc src Port, enc dst Port\" " +  ">> " + tprefix + "_vxlan_" + str(entries*mil) + "_" + dist_name + ".txt"
+				os.system(FILE)
+				info_line = 1
+			FILE = "echo " + macsrc[p] + "," + macdst[p] + "," + str(ipsrc[p]) + "," + str(ipdst[p]) + "," + str(portsrc[p]) + "," + str(4789) + macsrc_e[p] + "," + macdst_e[p] + "," + str(ipsrc_e[p]) + "," + str(ipdst_e[p]) + "," + str(portsrc_e[p]) + "," + str(portdst_e[p]) + " >> " + tprefix + "_vxlan_" + str(entries*mil) + "_" + dist_name + ".txt"
 	if prot == 3:
-		if info_line == 0:
-			FILE = "echo \"src MAC, dst MAC, src IP, dst IP, src Port, dst Port, enc src MAC, enc dst MAC, enc src IP, enc dst IP, enc src Port, enc dst Port\" " +  ">> PCAP/trace_trPR_gre_" + str(entries*mil) + "_random.txt"
-			os.system(FILE)
-			info_line = 1
-		FILE = "echo " + macsrc[p] + "," + macdst[p] + "," + str(ipsrc[p]) + "," + str(ipdst[p]) + "," + str(portsrc[p]) + "," + str(portdst[p]) + macsrc_e[p] + "," + macdst_e[p] + "," + str(ipsrc_e[p]) + "," + str(ipdst_e[p]) + "," + str(portsrc_e[p]) + "," + str(portdst_e[p]) + " >> PCAP/trace_trPR_gre_" + str(entries*mil) + "_random.txt"
+		if use_case == "macsad":
+			FILE = "echo " + macsrc_h[p] + " " +  str(ipsrc[p]) + " " + str(ipdst[p])+ " " +str(r[index])+" 1 >> " + tprefix + "_gre_" + str(entries) + "_" + dist_name + ".txt"
+		else:
+			if info_line == 0:
+				FILE = "echo \"src MAC, dst MAC, src IP, dst IP, src Port, dst Port, enc src MAC, enc dst MAC, enc src IP, enc dst IP, enc src Port, enc dst Port\" " +  ">> " + tprefix + "_gre_" + str(entries*mil) + "_" + dist_name + ".txt"
+				os.system(FILE)
+				info_line = 1
+			FILE = "echo " + macsrc[p] + "," + macdst[p] + "," + str(ipsrc[p]) + "," + str(ipdst[p]) + "," + str(portsrc[p]) + "," + str(portdst[p]) + macsrc_e[p] + "," + macdst_e[p] + "," + str(ipsrc_e[p]) + "," + str(ipdst_e[p]) + "," + str(portsrc_e[p]) + "," + str(portdst_e[p]) + " >> " + tprefix + "_gre_" + str(entries*mil) + "_" + dist_name + ".txt"
 	if prot == 4:
 		if info_line == 0:
-			FILE = "echo \"src MAC, dst MAC\" " +  ">> PCAP/trace_trPR_l2_" + str(entries*mil) + "_random.txt"
+			FILE = "echo \"src MAC, dst MAC\" " +  ">> " + tprefix + "_l2_" + str(entries*mil) + "_" + dist_name + ".txt"
 			os.system(FILE)
 			info_line = 1
-		FILE = "echo " + macsrc[p] + "," + macdst[p] + " >> PCAP/trace_trPR_l2_" + str(entries*mil) + "_random.txt"
+		FILE = "echo " + macsrc[p] + "," + macdst[p] + " >> " + tprefix + "_l2_" + str(entries*mil) + "_" + dist_name + ".txt"
 	os.system(FILE)
 	return
 
-def remove_copy_pcap(fprefix, prot, entries):
+def remove_copy_pcap(fprefix, prot, entries, dist_name):
 	if prot == 0:
-		rem = "rm %s_ipv4_%d_random_*"  % (fprefix, entries)
+		rem = "rm %s_ipv4_%d_%s_*"  % (fprefix, entries, dist_name)
 	if prot == 1:
-		rem = "rm %s_ipv6_%d_random_*"  % (fprefix, entries)
+		rem = "rm %s_ipv6_%d_%s_*"  % (fprefix, entries, dist_name)
 	if prot == 2:
-		rem = "rm %s_vxlan_%d_random_*"  % (fprefix, entries)
+		rem = "rm %s_vxlan_%d_%s_*"  % (fprefix, entries, dist_name)
 	if prot == 3:
-		rem = "rm %s_gre_%d_random_*"  % (fprefix, entries)
+		rem = "rm %s_gre_%d_%s_*"  % (fprefix, entries, dist_name)
 	if prot == 4:
-		rem = "rm %s_l2_%d_random_*"  % (fprefix, entries)
+		rem = "rm %s_l2_%d_%s_*"  % (fprefix, entries, dist_name)
 	os.system(rem)
 	return
 
@@ -76,7 +92,7 @@ class create_pkt:
 		self.pkts = []
 
 
-	def pkt_gen(self, entries, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, pktsize, prot, tra, pname_arg, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e):
+	def pkt_gen(self, entries, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, pktsize, prot, tra, pname_arg, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e, use_case, macsrc_h, macdst_h, dist_name):
 		mil = 1
 		if entries == 1000000:
 			entries = 10000
@@ -84,10 +100,13 @@ class create_pkt:
 		f = 0
 		filenames = []
 		first = 0
+		#Set the PCAP and Trace names:
 		if pname_arg == "test":
 			pprefix = "./PCAP/nfpa.trPR"
+			tprefix = "./PCAP/trace_trPR"
 		else:
-			pprefix = "./PCAP/"+pname_arg
+			pprefix = "./PCAP/"+ pname_arg
+			tprefix = "./PCAP/"+ pname_arg
 
 		for i in range(0, 7):
 			for j in range(0, mil):
@@ -118,32 +137,32 @@ class create_pkt:
 						self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/Raw(RandString(size=pktsize[i])))
 
 					if f == 0:
-							create_trace(prot, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, mil, p, i, macsrc_e, macdst_e, ipsrc_e, ipdst_e, portsrc_e, portdst_e)
+							create_trace(prot, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, mil, p, i, macsrc_e, macdst_e, ipsrc_e, ipdst_e, portsrc_e, portdst_e, use_case, macsrc_h, macdst_h, tprefix, dist_name)
 
 				if prot == 0:
 					#ipv4
 					if tra == 0:
-						pname = "%s_ipv4_%d_random_%d.%dbytes.pcap" % (pprefix, entries, j, pktsize[i]+42+12+4) 
-						namef = "%s_ipv4_%d_random.%dbytes.pcap" % (pprefix, entries*mil, pktsize[i]+42+12+4)
+						pname = "%s_ipv4_%d_%s_%d.%dbytes.pcap" % (pprefix, entries, dist_name, j, pktsize[i]+42+12+4) 
+						namef = "%s_ipv4_%d_%s.%dbytes.pcap" % (pprefix, entries*mil, dist_name, pktsize[i]+42+12+4)
 					else:
-						pname = "%s_ipv4_%d_random_%d.%dbytes.pcap" % (pprefix, entries, j, pktsize[i]+42+4) 
-						namef = "%s_ipv4_%d_random.%dbytes.pcap" % (pprefix, entries*mil, pktsize[i]+42+4)
+						pname = "%s_ipv4_%d_%s_%d.%dbytes.pcap" % (pprefix, entries, dist_name, j, pktsize[i]+42+4) 
+						namef = "%s_ipv4_%d_%s.%dbytes.pcap" % (pprefix, entries*mil, dist_name, pktsize[i]+42+4)
 				elif prot == 1:
 					#ipv6
-					pname = "%s_ipv6_%d_random_%d.%dbytes.pcap" % (pprefix, entries, j, pktsize[i]+54+4) 
-					namef = "%s_ipv6_%d_random.%dbytes.pcap" % (pprefix, entries*mil, pktsize[i]+54+4)
+					pname = "%s_ipv6_%d_%s_%d.%dbytes.pcap" % (pprefix, entries, dist_name, j, pktsize[i]+54+4) 
+					namef = "%s_ipv6_%d_%s.%dbytes.pcap" % (pprefix, entries*mil, dist_name, pktsize[i]+54+4)
 				elif prot == 2:
 					#vxlan
-					pname = "%s_vxlan_%d_random_%d.%dbytes.pcap" % (pprefix, entries, j, pktsize[i]+42+4+12+50)
-					namef = "%s_vxlan_%d_random.%dbytes.pcap" % (pprefix, entries*mil, pktsize[i]+42+4+12+50)
+					pname = "%s_vxlan_%d_%s_%d.%dbytes.pcap" % (pprefix, entries, dist_name, j, pktsize[i]+42+4+12+50)
+					namef = "%s_vxlan_%d_%s.%dbytes.pcap" % (pprefix, entries*mil, dist_name, pktsize[i]+42+4+12+50)
 				elif prot == 3:
 					#gre
-					pname = "%s_gre_%d_random_%d.%dbytes.pcap" % (pprefix, entries, j, pktsize[i]+78+4) 
-					namef = "%s_gre_%d_random.%dbytes.pcap" % (pprefix, entries*mil, pktsize[i]+78+4)
+					pname = "%s_gre_%d_%s_%d.%dbytes.pcap" % (pprefix, entries, dist_name, j, pktsize[i]+78+4) 
+					namef = "%s_gre_%d_%s.%dbytes.pcap" % (pprefix, entries*mil, dist_name, pktsize[i]+78+4)
 				elif prot == 4:
 					#l2
-					pname = "%s_l2_%d_random_%d.%dbytes.pcap" % (pprefix, entries, j, pktsize[i]+42+4) 
-					namef = "%s_l2_%d_random.%dbytes.pcap" % (pprefix, entries*mil, pktsize[i]+42+4)
+					pname = "%s_l2_%d_%s_%d.%dbytes.pcap" % (pprefix, entries, dist_name, j, pktsize[i]+42+4) 
+					namef = "%s_l2_%d_%s.%dbytes.pcap" % (pprefix, entries*mil, dist_name, pktsize[i]+42+4)
 
 				filenames.append(pname)
 
@@ -165,5 +184,5 @@ class create_pkt:
 			f = 1
 
 		#Remove temporary files
-		remove_copy_pcap(pprefix, prot, entries)
+		remove_copy_pcap(pprefix, prot, entries, dist_name)
 
