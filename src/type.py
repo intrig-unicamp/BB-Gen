@@ -28,7 +28,8 @@ class pkt_type:
 	def __init__(self, name):
 		self.name = name
 		self.pktsize = []
-		self.prot = 0
+		self.protoID = 0
+		self.protoName = ""
 		self.tra = 0
 		self.ranip = 1
 		self.ranmac = 1
@@ -38,22 +39,27 @@ class pkt_type:
 	def get_prot_type(self, data, tra):
 		if data == 'ipv6':
 			self.pktsize = [6, 70, 198, 454, 966, 1222, 1460]
-			self.prot = 1
+			self.protoID = 1
+			self.protoName = data
 		elif data == 'vxlan':
 			self.pktsize = [0, 20, 148, 404, 916, 1172, 1460]
-			self.prot = 2
+			self.protoID = 2
+			self.protoName = data
 		elif data == 'gre':
 			self.pktsize = [0 ,46, 174,430 ,942, 1198, 1436]
-			self.prot = 3
+			self.protoID = 3
+			self.protoName = data
 		elif data == 'l2':
 			self.pktsize = [18, 82, 210, 466, 978, 1234, 1472]
-			self.prot = 4
-		else:
+			self.protoID = 4
+			self.protoName = data
+		else: #ipv4
 			if tra == 0:
 				self.pktsize = [6, 70, 198, 454, 966, 1222, 1460]
 			else:
 				self.pktsize = [18, 82, 210, 466, 978, 1234, 1472]
-			self.prot = 0
+			self.protoID = 0
+			self.protoName = data
 
 	def get_tra_type(self, data):
 		if data == 'udp':

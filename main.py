@@ -113,7 +113,7 @@ e = pkt_type('Protocol')
 e.get_tra_type(args.transport)
 log("Transport: %s, reference value: %d" % (args.transport, e.tra))
 e.get_prot_type(args.type, e.tra)
-log("Protocol: %s, reference value: %d" % (args.type, e.prot))
+log("Protocol: %s, reference value: %d - %s" % (args.type, e.protoID, e.protoName))
 e.get_random(val_random)
 log("Random IP %s, Random MAC %s, Random Protocol %s" % (val_random[0], val_random[1], val_random[2]))
 log("Random data size: %s" % (e.pktsize))
@@ -121,7 +121,7 @@ log("Random data size: %s" % (e.pktsize))
 #Get IP, MAC and Port list
 log("Principal Headers info")
 f = generator('principal')
-f.ip_gen(entries,e.ranip,e.prot)
+f.ip_gen(entries,e.ranip,e.protoID)
 log("IP source list: \n %s" % (f.ipsrc))
 log("IP destination list: \n %s" % (f.ipdst))
 f.mac_gen(entries,e.ranmac)
@@ -134,7 +134,7 @@ log("Port destination list: \n %s" % (f.portdst))
 #Get encapsulated IP, MAC and Port list, for VXLAN and GRE
 log("Encapsulated Headers info")
 g = generator('encap')
-g.ip_gen(entries,e.ranip,e.prot)
+g.ip_gen(entries,e.ranip,e.protoID)
 log("IP source list: \n %s" % (g.ipsrc))
 log("IP destination list: \n %s" % (g.ipdst))
 g.mac_gen(entries,e.ranmac)
@@ -155,7 +155,8 @@ h.pkt_gen(
 			f.portdst, 
 			f.portsrc, 
 			e.pktsize, 
-			e.prot, 
+			e.protoID,
+			e.protoName, 
 			e.tra, 
 			pname, 
 			g.macdst, 

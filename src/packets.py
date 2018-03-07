@@ -18,6 +18,11 @@ from scapy.all import *
 # 3	GRE
 # 4	L2
 
+proto_list = ["ipv4", "ipv6", "vxlan", "gre", "l2"]
+plist = list(enumerate(proto_list, start=0))
+
+pkt_size_list = [64, 128, 256, 512, 1024, 1280, 1518]
+
 info_line = 0
 
 #Generates the Traces files
@@ -92,7 +97,7 @@ class create_pkt:
 		self.pkts = []
 
 
-	def pkt_gen(self, entries, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, pktsize, prot, tra, pname_arg, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e, use_case, macsrc_h, macdst_h, dist_name):
+	def pkt_gen(self, entries, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, pktsize, protoID, protoName, tra, pname_arg, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e, use_case, macsrc_h, macdst_h, dist_name):
 		mil = 1
 		if entries == 1000000:
 			entries = 10000
@@ -111,65 +116,39 @@ class create_pkt:
 		for i in range(0, 7):
 			for j in range(0, mil):
 				for p in range(0, entries):
-					if prot == 0:
-						#ipv4
+					if protoName == "ipv4":
 						if tra == 0:
-							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/TCP(dport=portdst[p],sport=portsrc[p])/Raw(RandString(size=pktsize[i])))				
+							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/TCP(dport=portdst[p],sport=portsrc[p])/Raw(RandString(size=pktsize[i])))
 						else:
-							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/UDP(dport=portdst[p],sport=portsrc[p])/Raw(RandString(size=pktsize[i])))				
-					elif prot == 1:
-						#ipv6
+							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/UDP(dport=portdst[p],sport=portsrc[p])/Raw(RandString(size=pktsize[i])))
+					elif protoName == "ipv6":
+						#ipv6 # If we dont use TCP/UDP, why this if clause is here?
 						if tra == 0:
 							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IPv6(dst=ipdst[p],src=ipsrc[p])/Raw(RandString(size=pktsize[i])))
 						else:
 							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IPv6(dst=ipdst[p],src=ipsrc[p])/Raw(RandString(size=pktsize[i])))
-					elif prot == 2:
-						#vxlan
+					elif protoName == "vxlan":
 						self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/UDP(sport=portdst[p],dport=4789)/VXLAN(vni=100)/Ether(dst=macdst_e[p],src=macsrc_e[p])/IP(dst=ipdst_e[p],src=ipsrc_e[p])/TCP(dport=portdst_e[p],sport=portsrc_e[p])/Raw(RandString(size=pktsize[i])))
-					elif prot == 3:
-						#gre
+					elif protoName == "gre":
 						if tra == 0:
 							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/GRE()/IP(dst=ipdst[p],src=ipsrc[p])/TCP(dport=portdst[p], sport=portsrc[p])/Raw(RandString(size=pktsize[i])))
 						else:
 							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/GRE()/IP(dst=ipdst[p],src=ipsrc[p])/UDP(dport=portdst[p], sport=portsrc[p])/Raw(RandString(size=pktsize[i])))
-					elif prot == 4:
-						#l2
+					elif protoName == "l2":
 						self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/Raw(RandString(size=pktsize[i])))
 
 					if f == 0:
-							create_trace(prot, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, mil, p, i, macsrc_e, macdst_e, ipsrc_e, ipdst_e, portsrc_e, portdst_e, use_case, macsrc_h, macdst_h, tprefix, dist_name)
+							create_trace(protoID, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, mil, p, i, macsrc_e, macdst_e, ipsrc_e, ipdst_e, portsrc_e, portdst_e, use_case, macsrc_h, macdst_h, tprefix, dist_name)
 
-				if prot == 0:
-					#ipv4
-					if tra == 0:
-						pname = "%s_ipv4_%d_%s_%d.%dbytes.pcap" % (pprefix, entries, dist_name, j, pktsize[i]+42+12+4) 
-						namef = "%s_ipv4_%d_%s.%dbytes.pcap" % (pprefix, entries*mil, dist_name, pktsize[i]+42+12+4)
-					else:
-						pname = "%s_ipv4_%d_%s_%d.%dbytes.pcap" % (pprefix, entries, dist_name, j, pktsize[i]+42+4) 
-						namef = "%s_ipv4_%d_%s.%dbytes.pcap" % (pprefix, entries*mil, dist_name, pktsize[i]+42+4)
-				elif prot == 1:
-					#ipv6
-					pname = "%s_ipv6_%d_%s_%d.%dbytes.pcap" % (pprefix, entries, dist_name, j, pktsize[i]+54+4) 
-					namef = "%s_ipv6_%d_%s.%dbytes.pcap" % (pprefix, entries*mil, dist_name, pktsize[i]+54+4)
-				elif prot == 2:
-					#vxlan
-					pname = "%s_vxlan_%d_%s_%d.%dbytes.pcap" % (pprefix, entries, dist_name, j, pktsize[i]+42+4+12+50)
-					namef = "%s_vxlan_%d_%s.%dbytes.pcap" % (pprefix, entries*mil, dist_name, pktsize[i]+42+4+12+50)
-				elif prot == 3:
-					#gre
-					pname = "%s_gre_%d_%s_%d.%dbytes.pcap" % (pprefix, entries, dist_name, j, pktsize[i]+78+4) 
-					namef = "%s_gre_%d_%s.%dbytes.pcap" % (pprefix, entries*mil, dist_name, pktsize[i]+78+4)
-				elif prot == 4:
-					#l2
-					pname = "%s_l2_%d_%s_%d.%dbytes.pcap" % (pprefix, entries, dist_name, j, pktsize[i]+42+4) 
-					namef = "%s_l2_%d_%s.%dbytes.pcap" % (pprefix, entries*mil, dist_name, pktsize[i]+42+4)
+				pname = "%s_%s_%d_%s_%d.%dbytes.pcap" % (pprefix, protoName, entries, dist_name, j, pkt_size_list[i])
+				namef = "%s_%s_%d_%s.%dbytes.pcap" % (pprefix, protoName, entries*mil, dist_name, pkt_size_list[i])
 
 				filenames.append(pname)
 
 				#Create partials PCAPs
 				wrpcap(pname,self.pkts)
 				del self.pkts[:] #Don't delete this line
-			
+
 			#Create final PCAP
 			with open(namef, 'w') as outfile:
 				for fname in filenames:
@@ -177,12 +156,11 @@ class create_pkt:
 						if first == 1:
 							infile.seek(24)
 						first = 1
-						for line in infile:	
-							outfile.write(line)	
-				first = 0		
+						for line in infile:
+							outfile.write(line)
+				first = 0
 			del filenames[:]
 			f = 1
 
 		#Remove temporary files
-		remove_copy_pcap(pprefix, prot, entries, dist_name)
-
+		remove_copy_pcap(pprefix, protoID, entries, dist_name)
