@@ -59,7 +59,7 @@ class pkt_type:
 			else:
 				self.pktsize = [18, 82, 210, 466, 978, 1234, 1472]
 			self.protoID = 0
-			self.protoName = data
+			self.protoName = "ipv4"
 
 	def get_tra_type(self, data):
 		if data == 'udp':

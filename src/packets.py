@@ -6,6 +6,8 @@ import random
 from random import shuffle
 from scapy.all import *
 
+from contrib.vxlan import *
+
 # The create_pkt class generates the pkts list to be added to the output file
 # creates the traces and PCAP from the data.
 # If the number of entries is more than 1M the PCAP is going to be splited in
@@ -61,7 +63,7 @@ def create_trace(prot, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, 
 			FILE = "echo " + macsrc[p] + "," + macdst[p] + "," + str(ipsrc[p]) + "," + str(ipdst[p]) + "," + str(portsrc[p]) + "," + str(4789) + macsrc_e[p] + "," + macdst_e[p] + "," + str(ipsrc_e[p]) + "," + str(ipdst_e[p]) + "," + str(portsrc_e[p]) + "," + str(portdst_e[p]) + " >> " + tprefix + "_vxlan_" + str(entries*mil) + "_" + dist_name + ".txt"
 	if prot == 3:
 		if use_case == "macsad":
-			FILE = "echo " + macsrc_h[p] + " " +  str(ipsrc[p]) + " " + str(ipdst[p])+ " " +str(r[index])+" 1 >> " + tprefix + "_gre_" + str(entries) + "_" + dist_name + ".txt"
+			FILE = "echo " + macsrc_h[p] + " " +  str(ipsrc[p]) + " " + str(ipdst[p]) + " 1 >> " + tprefix + "_gre_" + str(entries) + "_" + dist_name + ".txt"
 		else:
 			if info_line == 0:
 				FILE = "echo \"src MAC, dst MAC, src IP, dst IP, src Port, dst Port, enc src MAC, enc dst MAC, enc src IP, enc dst IP, enc src Port, enc dst Port\" " +  ">> " + tprefix + "_gre_" + str(entries*mil) + "_" + dist_name + ".txt"
