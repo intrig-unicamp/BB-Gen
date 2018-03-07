@@ -1,0 +1,6 @@
+include README.md setup.py LICENSE
+include *.txt
+include main.py
+recursive-include src *.txt *.py
+recursive-include lib *.txt *.py
+prune PCAP dist
