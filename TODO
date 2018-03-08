@@ -9,3 +9,5 @@ x Set the correct values information for the tracefiles
 x Add the tracefiles setup for MACSAD use case
 - Create pkts with the "-pkt" values
 - create pkts with an opcional "data" set by the user
+- when creating PCAP with same name, recreate the trace file instead of appending to it.
+- create packet using a custom list of headers

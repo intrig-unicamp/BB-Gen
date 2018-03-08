@@ -65,6 +65,7 @@ parser.add_argument('-pkt','--packetsizes',nargs=1,
 					"In case of more than one, separated the list with coma\n"
 					"e.g. 64,215,514.\n" 
 					"Default: 64",
+					dest='packetsizes',
 					required=False,
 					default=['64'])
 parser.add_argument('-u', metavar='', 
@@ -101,7 +102,7 @@ log("PCAP and Trace name: %s" % (pname))
 val_random = [args.rnip, args.rnmac, args.rnport] 
 
 #Get Pakcet sizes
-packet_sizes = (args.packetsizes[0]).split(',')
+packet_sizes = [int(e) for e in (args.packetsizes[0]).split(',')]
 
 #Enable debug
 debug_flag = args.debug_flag
@@ -148,7 +149,8 @@ log("Port destination list: \n %s" % (g.portdst))
 #Create PCAP
 h = create_pkt('A')
 h.pkt_gen(
-			entries, 
+			entries,
+			packet_sizes, 
 			f.macdst, 
 			f.macsrc, 
 			f.ipdst, 
