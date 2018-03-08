@@ -6,8 +6,6 @@ import random
 from random import shuffle
 from scapy.all import *
 
-from contrib.vxlan import *
-
 # The create_pkt class generates the pkts list to be added to the output file
 # creates the traces and PCAP from the data.
 # If the number of entries is more than 1M the PCAP is going to be splited in
@@ -23,7 +21,8 @@ from contrib.vxlan import *
 proto_list = ["ipv4", "ipv6", "vxlan", "gre", "l2"]
 plist = list(enumerate(proto_list, start=0))
 
-pkt_size_list = [64, 128, 256, 512, 1024, 1280, 1518]
+pkt_size_list_performance = [64, 128, 256, 512, 1024, 1280, 1518]
+# pkt_wsize_list = [60, 124, 252, 508, 1020, 1276, 1514]
 
 info_line = 0
 
@@ -93,13 +92,37 @@ def remove_copy_pcap(fprefix, prot, entries, dist_name):
 	os.system(rem)
 	return
 
+def create_pkt_hdrs(protoName, p, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, tra, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e, macsrc_h, macdst_h):
+	if protoName == "ipv4":
+		if tra == 0:
+			pkt_hdr = Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/TCP(dport=portdst[p],sport=portsrc[p])
+		else:
+			pkt_hdr = Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/UDP(dport=portdst[p],sport=portsrc[p])
+	elif protoName == "ipv6":
+		#ipv6 # If we dont use TCP/UDP, why this if clause is here?
+		if tra == 0:
+			pkt_hdr = Ether(dst=macdst[p],src=macsrc[p])/IPv6(dst=ipdst[p],src=ipsrc[p])
+		else:
+			pkt_hdr = Ether(dst=macdst[p],src=macsrc[p])/IPv6(dst=ipdst[p],src=ipsrc[p])
+	elif protoName == "vxlan":
+		pkt_hdr = Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/UDP(sport=portdst[p],dport=4789)/VXLAN(vni=100)/Ether(dst=macdst_e[p],src=macsrc_e[p])/IP(dst=ipdst_e[p],src=ipsrc_e[p])/TCP(dport=portdst_e[p],sport=portsrc_e[p])
+	elif protoName == "gre":
+		if tra == 0:
+			pkt_hdr = Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/GRE()/IP(dst=ipdst[p],src=ipsrc[p])/TCP(dport=portdst[p], sport=portsrc[p])
+		else:
+			pkt_hdr = Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/GRE()/IP(dst=ipdst[p],src=ipsrc[p])/UDP(dport=portdst[p], sport=portsrc[p])
+	elif protoName == "l2":
+		pkt_hdr = Ether(dst=macdst[p],src=macsrc[p])
+
+	return pkt_hdr
+
 class create_pkt:
 
 	def __init__(self, name):
 		self.pkts = []
 
 
-	def pkt_gen(self, entries, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, pktsize, protoID, protoName, tra, pname_arg, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e, use_case, macsrc_h, macdst_h, dist_name):
+	def pkt_gen(self, entries, pkt_size_list, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, pktsize, protoID, protoName, tra, pname_arg, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e, use_case, macsrc_h, macdst_h, dist_name):
 		mil = 1
 		if entries == 1000000:
 			entries = 10000
@@ -115,34 +138,20 @@ class create_pkt:
 			pprefix = "./PCAP/"+ pname_arg
 			tprefix = "./PCAP/"+ pname_arg
 
-		for i in range(0, 7):
+		for i, val in enumerate(pkt_size_list):
+			pkt_size_proto = val if i else (82 if (protoName=="gre")  else (114 if (protoName=="vxlan") else 64))
+			pkt_wsize_proto = pkt_size_proto - 4
+
 			for j in range(0, mil):
 				for p in range(0, entries):
-					if protoName == "ipv4":
-						if tra == 0:
-							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/TCP(dport=portdst[p],sport=portsrc[p])/Raw(RandString(size=pktsize[i])))
-						else:
-							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/UDP(dport=portdst[p],sport=portsrc[p])/Raw(RandString(size=pktsize[i])))
-					elif protoName == "ipv6":
-						#ipv6 # If we dont use TCP/UDP, why this if clause is here?
-						if tra == 0:
-							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IPv6(dst=ipdst[p],src=ipsrc[p])/Raw(RandString(size=pktsize[i])))
-						else:
-							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IPv6(dst=ipdst[p],src=ipsrc[p])/Raw(RandString(size=pktsize[i])))
-					elif protoName == "vxlan":
-						self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/UDP(sport=portdst[p],dport=4789)/VXLAN(vni=100)/Ether(dst=macdst_e[p],src=macsrc_e[p])/IP(dst=ipdst_e[p],src=ipsrc_e[p])/TCP(dport=portdst_e[p],sport=portsrc_e[p])/Raw(RandString(size=pktsize[i])))
-					elif protoName == "gre":
-						if tra == 0:
-							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/GRE()/IP(dst=ipdst[p],src=ipsrc[p])/TCP(dport=portdst[p], sport=portsrc[p])/Raw(RandString(size=pktsize[i])))
-						else:
-							self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/GRE()/IP(dst=ipdst[p],src=ipsrc[p])/UDP(dport=portdst[p], sport=portsrc[p])/Raw(RandString(size=pktsize[i])))
-					elif protoName == "l2":
-						self.pkts.append(Ether(dst=macdst[p],src=macsrc[p])/Raw(RandString(size=pktsize[i])))
 
+					pkt_tmp = create_pkt_hdrs(protoName, p, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, tra, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e, macsrc_h, macdst_h)
+
+					# print "pkt_wsize_list %d, pkt_tmp len %d, rand string length %d" %(pkt_wsize_list[i], len(pkt_tmp), pkt_wsize_list[i]-len(pkt_tmp))
+					self.pkts.append(pkt_tmp/Raw(RandString(size=(pkt_wsize_proto-len(pkt_tmp)))))
+					
 					if f == 0:
-							create_trace(protoID, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, mil, p, i, macsrc_e, macdst_e, ipsrc_e, ipdst_e, portsrc_e, portdst_e, use_case, macsrc_h, macdst_h, tprefix, dist_name)
-
-				pkt_size_proto = pkt_size_list[i] if i else (82 if (protoName=="gre")  else (114 if (protoName=="vxlan") else 64))
+						create_trace(protoID, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, mil, p, i, macsrc_e, macdst_e, ipsrc_e, ipdst_e, portsrc_e, portdst_e, use_case, macsrc_h, macdst_h, tprefix, dist_name)
 
 				pname = "%s_%s_%d_%s_%d.%dbytes.pcap" % (pprefix, protoName, entries, dist_name, j, pkt_size_proto)
 				namef = "%s_%s_%d_%s.%dbytes.pcap" % (pprefix, protoName, entries*mil, dist_name, pkt_size_proto)
