@@ -27,7 +27,7 @@ pkt_size_list_performance = [64, 128, 256, 512, 1024, 1280, 1518]
 info_line = 0
 
 #Generates the Traces files
-def create_trace(prot, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, mil, p, i, macsrc_e, macdst_e, ipsrc_e, ipdst_e, portsrc_e, portdst_e, use_case, macsrc_h, macdst_h, tprefix, dist_name):
+def create_trace(prot, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, mil, p, macsrc_e, macdst_e, ipsrc_e, ipdst_e, portsrc_e, portdst_e, use_case, macsrc_h, macdst_h, tprefix, dist_name):
 	global info_line
 	if prot == 0:
 		if use_case == "macsad":
@@ -92,7 +92,7 @@ def remove_copy_pcap(fprefix, prot, entries, dist_name):
 	os.system(rem)
 	return
 
-def create_pkt_hdrs(protoName, p, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, tra, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e, macsrc_h, macdst_h):
+def create_pkt_hdrs(protoName, p, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, tra, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e):
 	if protoName == "ipv4":
 		if tra == 0:
 			pkt_hdr = Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/TCP(dport=portdst[p],sport=portsrc[p])
@@ -138,20 +138,20 @@ class create_pkt:
 			pprefix = "./PCAP/"+ pname_arg
 			tprefix = "./PCAP/"+ pname_arg
 
-		for i, val in enumerate(pkt_size_list):
-			pkt_size_proto = val if i else (82 if (protoName=="gre")  else (114 if (protoName=="vxlan") else 64))
+		for val in pkt_size_list:
+			pkt_size_proto = 82 if ((protoName=="gre") & (val < 82)) else (114 if ((protoName=="vxlan") & (val < 114)) else val)
 			pkt_wsize_proto = pkt_size_proto - 4
 
 			for j in range(0, mil):
 				for p in range(0, entries):
 
-					pkt_tmp = create_pkt_hdrs(protoName, p, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, tra, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e, macsrc_h, macdst_h)
+					pkt_tmp = create_pkt_hdrs(protoName, p, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, tra, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e)
 
 					# print "pkt_wsize_list %d, pkt_tmp len %d, rand string length %d" %(pkt_wsize_list[i], len(pkt_tmp), pkt_wsize_list[i]-len(pkt_tmp))
 					self.pkts.append(pkt_tmp/Raw(RandString(size=(pkt_wsize_proto-len(pkt_tmp)))))
 					
 					if f == 0:
-						create_trace(protoID, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, mil, p, i, macsrc_e, macdst_e, ipsrc_e, ipdst_e, portsrc_e, portdst_e, use_case, macsrc_h, macdst_h, tprefix, dist_name)
+						create_trace(protoID, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, mil, p, macsrc_e, macdst_e, ipsrc_e, ipdst_e, portsrc_e, portdst_e, use_case, macsrc_h, macdst_h, tprefix, dist_name)
 
 				pname = "%s_%s_%d_%s_%d.%dbytes.pcap" % (pprefix, protoName, entries, dist_name, j, pkt_size_proto)
 				namef = "%s_%s_%d_%s.%dbytes.pcap" % (pprefix, protoName, entries*mil, dist_name, pkt_size_proto)
