@@ -1,7 +1,7 @@
-BB-gen
+BB-Gen
 ===
 
-BB-gen generates a PCAP and Trace files.
+BB-Gen generates a PCAP and Trace files.
 The PCAPs can be used for testing together with tools such as NFPA.
 
 Usage:  
@@ -9,7 +9,7 @@ Usage:
     main.py [-h] [-p] [-t] [-n] [-nm] [-rnip] [-rnmac] [-rnport] [-pkt]
                [-u] [-udata] [-perf] [-d] [-v]
 
-BB-gen PCAP generator
+BB-Gen PCAP generator
 
     optional arguments:  
     -h, --help            show this help message and exit
@@ -44,12 +44,11 @@ BB-gen PCAP generator
     -d, --debug           Debug enable
     -v                    show program's version number and exit
 
-BB-gen supports:
+BB-Gen supports:
   - Ethernet
   - IPv4 / IPv6
   - UDP
   - TCP
   - GRE
   - VXLAN
-  - ICMP / ICMPv6
 
