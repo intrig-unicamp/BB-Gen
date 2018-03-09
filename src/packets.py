@@ -122,7 +122,7 @@ class create_pkt:
 		self.pkts = []
 
 
-	def pkt_gen(self, entries, pkt_size_list, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, pktsize, protoID, protoName, tra, pname_arg, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e, use_case, macsrc_h, macdst_h, dist_name):
+	def pkt_gen(self, entries, pkt_size_list, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, pktsize, protoID, protoName, tra, pname_arg, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e, use_case, usr_data, macsrc_h, macdst_h, dist_name):
 		mil = 1
 		if entries == 1000000:
 			entries = 10000
@@ -137,7 +137,7 @@ class create_pkt:
 		else:
 			pprefix = "./PCAP/"+ pname_arg
 			tprefix = "./PCAP/"+ pname_arg
-
+		# usr_data = "1234"
 		for val in pkt_size_list:
 			pkt_size_proto = 82 if ((protoName=="gre") & (val < 82)) else (114 if ((protoName=="vxlan") & (val < 114)) else val)
 			pkt_wsize_proto = pkt_size_proto - 4
@@ -148,8 +148,13 @@ class create_pkt:
 					pkt_tmp = create_pkt_hdrs(protoName, p, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, tra, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e)
 
 					# print "pkt_wsize_list %d, pkt_tmp len %d, rand string length %d" %(pkt_wsize_list[i], len(pkt_tmp), pkt_wsize_list[i]-len(pkt_tmp))
-					self.pkts.append(pkt_tmp/Raw(RandString(size=(pkt_wsize_proto-len(pkt_tmp)))))
-					
+					if (usr_data==""):
+						self.pkts.append(pkt_tmp/Raw(RandString(size=(pkt_wsize_proto-len(pkt_tmp)))))
+					else:	
+						pkt_tmp = pkt_tmp/Raw(load=usr_data)
+						self.pkts.append(pkt_tmp) if (len(pkt_tmp) >= pkt_wsize_proto) else (self.pkts.append(pkt_tmp/Raw(RandString(size=(pkt_wsize_proto-len(pkt_tmp))))))
+						pkt_size_proto = len(pkt_tmp)
+						
 					if f == 0:
 						create_trace(protoID, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, mil, p, macsrc_e, macdst_e, ipsrc_e, ipdst_e, portsrc_e, portdst_e, use_case, macsrc_h, macdst_h, tprefix, dist_name)
 

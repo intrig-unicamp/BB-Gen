@@ -75,6 +75,11 @@ parser.add_argument('-u', metavar='',
 					dest='use_case', action="store", 
 					choices=['macsad'], default="none")
 
+parser.add_argument('-udata', metavar='', 
+				help="R|User Specified Data\n", 
+					dest='udata', action="store", 
+					default="")
+
 parser.add_argument('--debug', help='Debug enable', dest='debug_flag', action='store_true', 
 					default=False)
 
@@ -109,6 +114,12 @@ debug_flag = args.debug_flag
 
 #Use Case
 use_case = args.use_case
+
+#User specified data
+#For this case the packet_sizes should have the default list i.e., ['64']
+usr_data = args.udata
+packet_sizes = [64]
+log("User Specified Data: %s" % (usr_data))
 
 #Get Protocol type, transport protocol and distribution
 e = pkt_type('Protocol')
@@ -169,6 +180,7 @@ h.pkt_gen(
 			g.portdst, 
 			g.portsrc,
 			use_case,
+			usr_data,
 			f.macsrc_h,
 			f.macdst_h,
 			e.dist_name
