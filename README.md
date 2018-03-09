@@ -6,36 +6,50 @@ The PCAPs can be used for testing together with tools such as NFPA.
 
 Usage:  
 
-    main.py [-h] [-p] [-t] [-n] [-name] [--rnip] [--rnmac] [--rnport]  
-               [--debug] [-A] [-B] [-v]
+    main.py [-h] [-p] [-t] [-n] [-nm] [-rnip] [-rnmac] [-rnport] [-pkt]
+               [-u] [-udata] [-perf] [-d] [-v]
 
 BB-gen PCAP generator
 
     optional arguments:  
-    -h, --help  show this help message and exit  
-    -p          Type of packet: ipv4, ipv6, vxlan, gre, l2  
-    -t          TCP or UDP  
-    -n          Number of entries  
-    -name       PCAP name  
-    --rnip      Random IP  
-    --rnmac     Random MAC  
-    --rnport    Random Port  
-    -pkt        Required packetsize
-    --debug     Debug enable  
-    -A          Add different values to list  
-    -B          Add different values to list  
-    -v          show program's version number and exit  
-
+    -h, --help            show this help message and exit
+    -p , --protocol       Type of packet:
+                           ipv4, ipv6, vxlan, gre, l2
+                           Default: ipv4
+    -t , --tansport       Specifies the transport protocol:
+                           tcp or udp
+                           For VXLAN and GRE is the encapsulated protocol
+                           Default: tcp
+    -n , --number         Number of entries
+                           Default: 100
+    -nm , --name          PCAP name
+                           Default: ipv4
+    -rnip                 Random IP
+                           Default: False
+    -rnmac                Random MAC
+                           Default: False
+    -rnport               Random Port
+                           Default: False
+    -pkt , --packetsize   Specify here the required packetsize
+                           In case of more than one, separated the list with coma
+                           e.g. 64,215,514.
+                           Default: 64
+    -u , --usecase        Use Case:
+                           macsad
+                           Default: none
+    -udata , --userdata   User Specified Data
+    -perf, --performance  Performance PCAPs
+                           64, 128, 254, 512, 1024, 1280, 1518 pkt size
+                           Default: False
+    -d, --debug           Debug enable
+    -v                    show program's version number and exit
 
 BB-gen supports:
   - Ethernet
-  - ICMP / ICMPv6
   - IPv4 / IPv6
   - UDP
   - TCP
   - GRE
   - VXLAN
+  - ICMP / ICMPv6
 
-Numerous examples are provided in the example dir.
-
-Example:

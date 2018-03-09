@@ -27,56 +27,67 @@ pkt_size_list_performance = [64, 128, 256, 512, 1024, 1280, 1518]
 info_line = 0
 
 #Generates the Traces files
-def create_trace(prot, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, mil, p, macsrc_e, macdst_e, ipsrc_e, ipdst_e, portsrc_e, portdst_e, use_case, macsrc_h, macdst_h, tprefix, dist_name):
+def create_trace(prot, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, mil, p, macsrc_e, macdst_e, ipsrc_e, ipdst_e, portsrc_e, portdst_e, use_case, macsrc_h, macdst_h, tprefix, dist_name, cfile):
 	global info_line
+	if cfile == 0:
+		nfile = ">"
+	else:
+		nfile = ">>"
 	if prot == 0:
 		if use_case == "macsad":
-			FILE = "echo " + str(ipdst[p]) + " " + macdst_h[p] + " 1 >> " + tprefix + "_ipv4_" + str(entries*mil) + "_" + dist_name + ".txt"
-			FILE2 = "echo " + macsrc[p] + " 0 >> " + tprefix + "_l2_" + str(entries*mil) + "_" + dist_name + ".txt"
-			os.system(FILE2)
-			FILE2 = "echo " + macdst[p] + " 1 >> " + tprefix + "_l2_" + str(entries) + "_" + dist_name + ".txt"
-			os.system(FILE2)
+			FILE = "echo " + str(ipdst[p]) + " " + macdst_h[p] + " 1 " + nfile + " " + tprefix + "_ipv4_" + str(entries*mil) + "_" + dist_name + ".txt"
+			if cfile == 0:
+				FILE2 = "echo " + macsrc[p] + " 0 " + nfile + " " + tprefix + "_l2_" + str(entries*mil) + "_" + dist_name + ".txt"
+				os.system(FILE2)
+				FILE2 = "echo " + macdst[p] + " 1 >> " + tprefix + "_l2_" + str(entries) + "_" + dist_name + ".txt"
+				os.system(FILE2)
+			else:
+				FILE2 = "echo " + macsrc[p] + " 0 " + nfile + " " + tprefix + "_l2_" + str(entries*mil) + "_" + dist_name + ".txt"
+				os.system(FILE2)
+				FILE2 = "echo " + macdst[p] + " 1 " + nfile + " " + tprefix + "_l2_" + str(entries) + "_" + dist_name + ".txt"
+				os.system(FILE2)
 		else:
 			if info_line == 0:
-				FILE = "echo \"src MAC,dst MAC,src IP,dst IP,src Port,dst Port\" " +  " >> " + tprefix + "_ipv4_" + str(entries*mil) + "_" + dist_name + ".txt"
+				FILE = "echo \"src MAC,dst MAC,src IP,dst IP,src Port,dst Port\" " +  " " + nfile + " " + tprefix + "_ipv4_" + str(entries*mil) + "_" + dist_name + ".txt"
 				os.system(FILE)
 				info_line = 1
-			FILE = "echo " + macsrc[p] + "," + macdst[p] + "," + str(ipsrc[p]) + "," + str(ipdst[p]) + "," + str(portsrc[p]) + "," + str(portdst[p]) + " >> " + tprefix + "_ipv4_" + str(entries*mil) + "_" + dist_name + ".txt"
+			FILE = "echo " + macsrc[p] + "," + macdst[p] + "," + str(ipsrc[p]) + "," + str(ipdst[p]) + "," + str(portsrc[p]) + "," + str(portdst[p]) + " " + nfile + " " + tprefix + "_ipv4_" + str(entries*mil) + "_" + dist_name + ".txt"
 	if prot == 1:
 		if use_case == "macsad":
-			FILE = "echo " + str(ipdst[p]) + " " + macdst_h[p] + " 1 >> " + tprefix + "_ipv6_" + str(entries*mil) + "_" + dist_name + ".txt"
+			FILE = "echo " + str(ipdst[p]) + " " + macdst_h[p] + " 1 " + nfile + " " + tprefix + "_ipv6_" + str(entries*mil) + "_" + dist_name + ".txt"
 		else:
 			if info_line == 0:
-				FILE = "echo \"src MAC, dst MAC, src IP, dst IP, src Port, dst Port\" " +  ">> " + tprefix + "_ipv6_" + str(entries*mil) + "_" + dist_name + ".txt"
+				FILE = "echo \"src MAC, dst MAC, src IP, dst IP, src Port, dst Port\" " +  "" + nfile + " " + tprefix + "_ipv6_" + str(entries*mil) + "_" + dist_name + ".txt"
 				os.system(FILE)
 				info_line = 1
-			FILE = "echo " + macsrc[p] + "," + macdst[p] + "," + str(ipsrc[p]) + "," + str(ipdst[p]) + "," + str(portsrc[p]) + "," + str(portdst[p]) + " >> " + tprefix + "_ipv6_" + str(entries*mil) + "_" + dist_name + ".txt"
+			FILE = "echo " + macsrc[p] + "," + macdst[p] + "," + str(ipsrc[p]) + "," + str(ipdst[p]) + "," + str(portsrc[p]) + "," + str(portdst[p]) + " " + nfile + " " + tprefix + "_ipv6_" + str(entries*mil) + "_" + dist_name + ".txt"
 	if prot == 2:
 		if use_case == "macsad":
-			FILE = "echo " + str(ipdst[p]) + " 1 >> " + tprefix + "_vxlan_" + str(entries) + "_" + dist_name + ".txt"
+			FILE = "echo " + str(ipdst[p]) + " 1 " + nfile + " " + tprefix + "_vxlan_" + str(entries) + "_" + dist_name + ".txt"
 		else:
 			if info_line == 0:
-				FILE = "echo \"src MAC, dst MAC, src IP, dst IP, src Port, dst Port, enc src MAC, enc dst MAC, enc src IP, enc dst IP, enc src Port, enc dst Port\" " +  ">> " + tprefix + "_vxlan_" + str(entries*mil) + "_" + dist_name + ".txt"
+				FILE = "echo \"src MAC, dst MAC, src IP, dst IP, src Port, dst Port, enc src MAC, enc dst MAC, enc src IP, enc dst IP, enc src Port, enc dst Port\" " +  "" + nfile + " " + tprefix + "_vxlan_" + str(entries*mil) + "_" + dist_name + ".txt"
 				os.system(FILE)
 				info_line = 1
-			FILE = "echo " + macsrc[p] + "," + macdst[p] + "," + str(ipsrc[p]) + "," + str(ipdst[p]) + "," + str(portsrc[p]) + "," + str(4789) + macsrc_e[p] + "," + macdst_e[p] + "," + str(ipsrc_e[p]) + "," + str(ipdst_e[p]) + "," + str(portsrc_e[p]) + "," + str(portdst_e[p]) + " >> " + tprefix + "_vxlan_" + str(entries*mil) + "_" + dist_name + ".txt"
+			FILE = "echo " + macsrc[p] + "," + macdst[p] + "," + str(ipsrc[p]) + "," + str(ipdst[p]) + "," + str(portsrc[p]) + "," + str(4789) + macsrc_e[p] + "," + macdst_e[p] + "," + str(ipsrc_e[p]) + "," + str(ipdst_e[p]) + "," + str(portsrc_e[p]) + "," + str(portdst_e[p]) + " " + nfile + " " + tprefix + "_vxlan_" + str(entries*mil) + "_" + dist_name + ".txt"
 	if prot == 3:
 		if use_case == "macsad":
-			FILE = "echo " + macsrc_h[p] + " " +  str(ipsrc[p]) + " " + str(ipdst[p]) + " 1 >> " + tprefix + "_gre_" + str(entries) + "_" + dist_name + ".txt"
+			FILE = "echo " + macsrc_h[p] + " " +  str(ipsrc[p]) + " " + str(ipdst[p]) + " 1 " + nfile + " " + tprefix + "_gre_" + str(entries) + "_" + dist_name + ".txt"
 		else:
 			if info_line == 0:
-				FILE = "echo \"src MAC, dst MAC, src IP, dst IP, src Port, dst Port, enc src MAC, enc dst MAC, enc src IP, enc dst IP, enc src Port, enc dst Port\" " +  ">> " + tprefix + "_gre_" + str(entries*mil) + "_" + dist_name + ".txt"
+				FILE = "echo \"src MAC, dst MAC, src IP, dst IP, src Port, dst Port, enc src MAC, enc dst MAC, enc src IP, enc dst IP, enc src Port, enc dst Port\" " +  "" + nfile + " " + tprefix + "_gre_" + str(entries*mil) + "_" + dist_name + ".txt"
 				os.system(FILE)
 				info_line = 1
-			FILE = "echo " + macsrc[p] + "," + macdst[p] + "," + str(ipsrc[p]) + "," + str(ipdst[p]) + "," + str(portsrc[p]) + "," + str(portdst[p]) + macsrc_e[p] + "," + macdst_e[p] + "," + str(ipsrc_e[p]) + "," + str(ipdst_e[p]) + "," + str(portsrc_e[p]) + "," + str(portdst_e[p]) + " >> " + tprefix + "_gre_" + str(entries*mil) + "_" + dist_name + ".txt"
+			FILE = "echo " + macsrc[p] + "," + macdst[p] + "," + str(ipsrc[p]) + "," + str(ipdst[p]) + "," + str(portsrc[p]) + "," + str(portdst[p]) + macsrc_e[p] + "," + macdst_e[p] + "," + str(ipsrc_e[p]) + "," + str(ipdst_e[p]) + "," + str(portsrc_e[p]) + "," + str(portdst_e[p]) + " " + nfile + " " + tprefix + "_gre_" + str(entries*mil) + "_" + dist_name + ".txt"
 	if prot == 4:
 		if info_line == 0:
-			FILE = "echo \"src MAC, dst MAC\" " +  ">> " + tprefix + "_l2_" + str(entries*mil) + "_" + dist_name + ".txt"
+			FILE = "echo \"src MAC, dst MAC\" " +  "" + nfile + " " + tprefix + "_l2_" + str(entries*mil) + "_" + dist_name + ".txt"
 			os.system(FILE)
 			info_line = 1
-		FILE = "echo " + macsrc[p] + "," + macdst[p] + " >> " + tprefix + "_l2_" + str(entries*mil) + "_" + dist_name + ".txt"
+		FILE = "echo " + macsrc[p] + "," + macdst[p] + " " + nfile + " " + tprefix + "_l2_" + str(entries*mil) + "_" + dist_name + ".txt"
+	cfile = 1
 	os.system(FILE)
-	return
+	return cfile
 
 def remove_copy_pcap(fprefix, prot, entries, dist_name):
 	if prot == 0:
@@ -122,7 +133,8 @@ class create_pkt:
 		self.pkts = []
 
 
-	def pkt_gen(self, entries, pkt_size_list, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, pktsize, protoID, protoName, tra, pname_arg, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e, use_case, usr_data, macsrc_h, macdst_h, dist_name):
+	def pkt_gen(self, entries, pkt_size_list, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, protoID, protoName, tra, pname_arg, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e, use_case, usr_data, macsrc_h, macdst_h, dist_name, performance):
+		
 		mil = 1
 		if entries == 1000000:
 			entries = 10000
@@ -130,18 +142,24 @@ class create_pkt:
 		f = 0
 		filenames = []
 		first = 0
+
+		#Enable performance sizes
+		if performance == True:
+			pkt_size_list = pkt_size_list_performance
+
 		#Set the PCAP and Trace names:
-		if pname_arg == "test":
+		if pname_arg == "noname":
 			pprefix = "./PCAP/nfpa.trPR"
 			tprefix = "./PCAP/trace_trPR"
 		else:
-			pprefix = "./PCAP/"+ pname_arg
-			tprefix = "./PCAP/"+ pname_arg
+			pprefix = "./PCAP/" + pname_arg
+			tprefix = "./PCAP/" + pname_arg
+
 		# usr_data = "1234"
+		cfile = 0
 		for val in pkt_size_list:
 			pkt_size_proto = 82 if ((protoName=="gre") & (val < 82)) else (114 if ((protoName=="vxlan") & (val < 114)) else val)
 			pkt_wsize_proto = pkt_size_proto - 4
-
 			for j in range(0, mil):
 				for p in range(0, entries):
 
@@ -153,10 +171,10 @@ class create_pkt:
 					else:	
 						pkt_tmp = pkt_tmp/Raw(load=usr_data)
 						self.pkts.append(pkt_tmp) if (len(pkt_tmp) >= pkt_wsize_proto) else (self.pkts.append(pkt_tmp/Raw(RandString(size=(pkt_wsize_proto-len(pkt_tmp))))))
-						pkt_size_proto = len(pkt_tmp)
+						pkt_size_proto = len(pkt_tmp) + 4
 						
 					if f == 0:
-						create_trace(protoID, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, mil, p, macsrc_e, macdst_e, ipsrc_e, ipdst_e, portsrc_e, portdst_e, use_case, macsrc_h, macdst_h, tprefix, dist_name)
+						cfile = create_trace(protoID, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, mil, p, macsrc_e, macdst_e, ipsrc_e, ipdst_e, portsrc_e, portdst_e, use_case, macsrc_h, macdst_h, tprefix, dist_name, cfile)
 
 				pname = "%s_%s_%d_%s_%d.%dbytes.pcap" % (pprefix, protoName, entries, dist_name, j, pkt_size_proto)
 				namef = "%s_%s_%d_%s.%dbytes.pcap" % (pprefix, protoName, entries*mil, dist_name, pkt_size_proto)

@@ -24,72 +24,71 @@ def log(s):
 
 parser = ArgumentParser(description='BB-gen PCAP generator', formatter_class=SmartFormatter)
 
-parser.add_argument('-p', metavar='', 
+parser.add_argument('-p','--protocol', metavar='', 
 				help="R|Type of packet:\n"
-					"ipv4, ipv6, vxlan, gre, l2\n"
-					"Default: ipv4", 
+					" ipv4, ipv6, vxlan, gre, l2\n"
+					" Default: ipv4", 
 					dest='type', action="store", default='ipv4')
-parser.add_argument('-t', metavar='', 
+parser.add_argument('-t','--tansport', metavar='', 
 				help="R|Specifies the transport protocol:\n"
-					"tcp or udp\n"
-					"For VXLAN and GRE is the encapsulated protocol\n"
-					"Default: tcp", 
+					" tcp or udp\n"
+					" For VXLAN and GRE is the encapsulated protocol\n"
+					" Default: tcp", 
 					dest='transport', action="store", 
 					choices=['tcp', 'udp'], default='tcp')
-parser.add_argument('-n', metavar='', 
+parser.add_argument('-n','--number', metavar='', 
 				help="R|Number of entries\n"
-					"Default: 100", 
+					" Default: 100", 
 					dest='num', action="store", 
 					type=int, default=10)
-parser.add_argument('-name', metavar='', 
+parser.add_argument('-nm','--name', metavar='', 
 				help="R|PCAP name\n"
-					"Default: ipv4", 
+					" Default: ipv4", 
 					dest='name', action="store", 
-					default="test")
-parser.add_argument('--rnip', 
+					default="noname")
+parser.add_argument('-rnip',
 				help="R|Random IP\n"
-					"Default: False", 
+					" Default: False", 
 					dest='rnip', action='store_true', 
 					default=False)
-parser.add_argument('--rnmac', 
+parser.add_argument('-rnmac',
 				help="R|Random MAC\n"
-					"Default: False", 
+					" Default: False", 
 					dest='rnmac', action='store_true', 
 					default=False)
-parser.add_argument('--rnport', 
+parser.add_argument('-rnport',
 				help="R|Random Port\n"
-					"Default: False", dest='rnport', action='store_true', 
+					" Default: False", dest='rnport', action='store_true', 
 					default=False)
-parser.add_argument('-pkt','--packetsizes',nargs=1,
+parser.add_argument('-pkt','--packetsize',nargs=1, metavar='', 
 				help="R|Specify here the required packetsize\n"
-					"In case of more than one, separated the list with coma\n"
-					"e.g. 64,215,514.\n" 
-					"Default: 64",
+					" In case of more than one, separated the list with coma\n"
+					" e.g. 64,215,514.\n" 
+					" Default: 64",
 					dest='packetsizes',
 					required=False,
 					default=['64'])
-parser.add_argument('-u', metavar='', 
+parser.add_argument('-u', '--usecase',metavar='', 
 				help="R|Use Case:\n"
-					"macsad\n"
-					"Default: none", 
+					" macsad\n"
+					" Default: none", 
 					dest='use_case', action="store", 
 					choices=['macsad'], default="none")
-
-parser.add_argument('-udata', metavar='', 
+parser.add_argument('-udata', '--userdata', metavar='', 
 				help="R|User Specified Data\n", 
 					dest='udata', action="store", 
 					default="")
-
-parser.add_argument('--debug', help='Debug enable', dest='debug_flag', action='store_true', 
+parser.add_argument('-perf', '--performance',
+				help="R|Performance PCAPs\n"
+					" 64, 128, 254, 512, 1024, 1280, 1518 pkt size\n"
+					" Default: False", 
+					dest='performance', action='store_true', 
 					default=False)
-
-parser.add_argument('-A', action='append_const', dest='const_collection',
-                    const='value-1-to-append',
-                    default=[],
-                    help='Add different values to list')
-parser.add_argument('-B', action='append_const', dest='const_collection',
-                    const='value-2-to-append',
-                    help='Add different values to list')
+parser.add_argument('-d','--debug', 
+				help='Debug enable', 
+					dest='debug_flag', 
+					action='store_true', 
+					default=False)
 
 parser.add_argument('-v', action='version', version='BB-gen 1.0')
 
@@ -114,6 +113,9 @@ debug_flag = args.debug_flag
 
 #Use Case
 use_case = args.use_case
+
+#Performance 
+performance = args.performance
 
 #User specified data
 #For this case the packet_sizes should have the default list i.e., ['64']
@@ -167,8 +169,7 @@ h.pkt_gen(
 			f.ipdst, 
 			f.ipsrc, 
 			f.portdst, 
-			f.portsrc, 
-			e.pktsize, 
+			f.portsrc,
 			e.protoID,
 			e.protoName, 
 			e.tra, 
@@ -183,5 +184,6 @@ h.pkt_gen(
 			usr_data,
 			f.macsrc_h,
 			f.macdst_h,
-			e.dist_name
+			e.dist_name,
+			performance
 		)
