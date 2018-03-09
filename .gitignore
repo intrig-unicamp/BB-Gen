@@ -1,5 +1,4 @@
 #built using gitignore template from "https://github.com/github/gitignore"
-/PCAP
 *.pyc
 MANIFEST
 /dist
