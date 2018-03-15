@@ -4,6 +4,8 @@ BB-Gen
 ## About BB-Gen
 BB-Gen is simple CLI based packet crafter written in Python over Scapy library. It can natively crafts packets for different standard and custom protocols. It aims to create PCAP files to be used with a wide set of Traffic Generators (e.g., pktgen-dpdk, NFPA, TCPDUMP, etc.) helping network developers with performance and simple tests of the targets.
 
+[![Build Status](https://travis-ci.org/intrig-unicamp/BB-Gen.svg?branch=master)](https://travis-ci.org/intrig-unicamp/BB-Gen)
+
 ## Installation  
 step 1: $ `sudo apt-get install git`  
 step 2: $ `git clone https://github.com/intrig-unicamp/BB-Gen.git`  
