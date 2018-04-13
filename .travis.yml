@@ -10,7 +10,7 @@ before_install:
 - sudo pip install scapy
 - git submodule update --init --recursive
 - cd p4-hlir
-- python setup.py install
+- sudo python setup.py install
 - cd ..
 
 script:
