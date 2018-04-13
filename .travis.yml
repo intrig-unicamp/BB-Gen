@@ -6,8 +6,12 @@ python:
 - 2.7
 
 before_install:
-- sudo apt-get install python-pip
+- sudo apt-get install -y python-pip git python-yaml graphviz python-setuptools
 - sudo pip install scapy
+- git submodule update --init --recursive
+- cd p4-hlir
+- python setup.py install --user
+- cd ..
 
 script:
 - sudo python main.py
