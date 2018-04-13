@@ -57,6 +57,13 @@ from random import shuffle
 ethernet = [[],[]]
 ipv4 = [[],[]]
 ipv4_2 = [[],[]]
+ipv6 = [[],[]]
+udp = [[],[]]
+tcp = [[],[]]
+vxlan = [[],[]]
+arp_t = [[],[]]
+arp_ipv4_t = [[],[]]
+gre = [[],[]]
 
 class pkt_type:
 
@@ -70,6 +77,8 @@ class pkt_type:
 		self.ranmac = 1
 		self.ranport = 1
 		self.dist_name = "simple"
+		self.protocol = ""
+		self.transport = ""
 
 	def get_prot_type(self, data, tra):
 		if data == 'ipv6':
@@ -123,13 +132,13 @@ class pkt_type:
 
 	def get_prot(self, header_list_len, header_list_val):
 		
-		header_list = ['l2', 'ipv4', 'ipv4', 'ipv6', 'udp', 'tcp', 'vxlan', 'arp', 'gre']
+		header_list = ['l2', 'arp', 'arp', 'ipv4', 'ipv4', 'ipv6', 'udp', 'tcp', 'vxlan', 'gre']
 
 		ethernet[0] = ['48', '48', '16']
 		ethernet[1] = ['dstAddr', 'srcAddr', 'etherType']
 
-		ipv4[0] = ['4', '4', '8', '16', '16', '16', '8', '8', '16', '32', '32']
-		ipv4[1] = ['version', 'ihl', 'diffserv', 'totalLen', 'identification', 'fragOffset', 'ttl', 'protocol', 'hdrChecksum', 'srcAddr', 'dstAddr']
+		ipv4[0] = ['4', '4', '8', '16', '16', '3', '13', '8', '8', '16', '32', '32']
+		ipv4[1] = ['version', 'ihl', 'diffserv', 'totalLen', 'identification', 'frag', 'Offset', 'ttl', 'protocol', 'hdrChecksum', 'srcAddr', 'dstAddr']
 
 		ipv4_2[0] = ['8', '8', '16', '16', '16', '8', '8', '16', '32', '32']
 		ipv4_2[1] = ['versionIhl', 'diffserv', 'totalLen', 'identification', 'fragOffset', 'ttl', 'protocol', 'hdrChecksum', 'srcAddr', 'dstAddr']
@@ -149,9 +158,22 @@ class pkt_type:
 		arp_t[0] = ['16', '16', '8', '8', '16']
 		arp_t[1] = ['htype', 'ptype', 'hlength', 'plength', 'opcode']
 
-		arp_[0] = ['16', '16', '8', '8', '16']
-		arp_t[1] = ['htype', 'ptype', 'hlength', 'plength', 'opcode']
+		arp_ipv4_t[0] = ['16', '16', '8', '8', '16']
+		arp_ipv4_t[1] = ['htype', 'ptype', 'hlength', 'plength', 'opcode']
 
 		gre[0] = ['1', '1', '1', '1', '1', '3', '5', '3', '16']
 		gre[1] = ['C', 'R', 'K', 'S', 's', 'recurse', 'flags', 'ver', 'proto']
 
+		headers = [ethernet, arp_t, arp_ipv4_t, ipv4, ipv4_2, ipv6, udp, tcp, vxlan, gre]
+
+		for val in xrange(0,len(headers)):
+			for hed in xrange(0,len(header_list_len)):
+				if header_list_len[hed] == headers[val][0]:
+				 	self.protocol = header_list[val]
+				 	if self.protocol == 'tcp':
+				 		self.transport = 'tcp'
+				 	elif self.protocol == 'udp':
+				 		self.transport = 'udp'
+
+		#self.get_tra_type(transport)
+		#self.get_prot_type(protocol, self.tra)

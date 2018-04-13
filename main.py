@@ -179,9 +179,9 @@ if p4_code != 'none':
 	log("List of P4 headers lenght %s" % (src.settings.header_list_len))
 	log("List of P4 headers values %s" % (src.settings.header_list_val))
 
-	e.get_tra_type(args.transport)
+	e.get_tra_type(e.transport)
 	log("Transport: %s, reference value: %d" % (args.transport, e.tra))
-	e.get_prot_type(args.type, e.tra)
+	e.get_prot_type(e.protocol, e.tra)
 	log("Protocol: %s, reference value: %d - %s" % (args.type, e.protoID, e.protoName))
 
 #if is not a P4 code input

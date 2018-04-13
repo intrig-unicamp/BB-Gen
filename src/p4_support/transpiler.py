@@ -160,7 +160,7 @@ class run_transpiler:
     def __init__(self, name):
         self.pkts = []
 
-    def principal(none, p4_code):
+    def principal(self, p4_code):
         
         #print "Transpiler started"
 
