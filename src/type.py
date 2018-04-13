@@ -54,6 +54,10 @@ from random import shuffle
 # 0	random
 # 1	simple
 
+ethernet = [[],[]]
+ipv4 = [[],[]]
+ipv4_2 = [[],[]]
+
 class pkt_type:
 
 	def __init__(self, name):
@@ -116,3 +120,38 @@ class pkt_type:
 			self.dist_name = "simple"
 		else:
 			self.dist_name = ipname + "_" + macname + "_" + portname
+
+	def get_prot(self, header_list_len, header_list_val):
+		
+		header_list = ['l2', 'ipv4', 'ipv4', 'ipv6', 'udp', 'tcp', 'vxlan', 'arp', 'gre']
+
+		ethernet[0] = ['48', '48', '16']
+		ethernet[1] = ['dstAddr', 'srcAddr', 'etherType']
+
+		ipv4[0] = ['4', '4', '8', '16', '16', '16', '8', '8', '16', '32', '32']
+		ipv4[1] = ['version', 'ihl', 'diffserv', 'totalLen', 'identification', 'fragOffset', 'ttl', 'protocol', 'hdrChecksum', 'srcAddr', 'dstAddr']
+
+		ipv4_2[0] = ['8', '8', '16', '16', '16', '8', '8', '16', '32', '32']
+		ipv4_2[1] = ['versionIhl', 'diffserv', 'totalLen', 'identification', 'fragOffset', 'ttl', 'protocol', 'hdrChecksum', 'srcAddr', 'dstAddr']
+
+		ipv6[0] = ['4', '8', '20', '16', '8', '8', '128', '128']
+		ipv6[1] = ['version', 'trafficClass', 'flowLabel', 'payloadLen', 'nextHdr', 'hopLimit', 'srcAddr', 'dstAddr']
+
+		udp[0] = ['16', '16', '16', '16']
+		udp[1] = ['srcPort', 'dstPort', 'length_', 'checksum']
+
+		tcp[0] = ['16', '16', '32', '32', '4', '4', '8', '16', '16', '16']
+		tcp[1] = ['srcPort', 'dstPort', 'seqNo', 'ackNo', 'dataOffset', 'res', 'flags', 'window', 'checksum', 'urgentPtr']
+
+		vxlan[0] = ['8', '24', '24', '8']
+		vxlan[1] = ['flags', 'reserved', 'vni', 'reserved2']
+
+		arp_t[0] = ['16', '16', '8', '8', '16']
+		arp_t[1] = ['htype', 'ptype', 'hlength', 'plength', 'opcode']
+
+		arp_[0] = ['16', '16', '8', '8', '16']
+		arp_t[1] = ['htype', 'ptype', 'hlength', 'plength', 'opcode']
+
+		gre[0] = ['1', '1', '1', '1', '1', '3', '5', '3', '16']
+		gre[1] = ['C', 'R', 'K', 'S', 's', 'recurse', 'flags', 'ver', 'proto']
+

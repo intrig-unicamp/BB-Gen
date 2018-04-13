@@ -38,13 +38,17 @@ import random
 from random import shuffle
 import argparse
 from argparse import ArgumentParser
+import subprocess
 
-
+import src.settings 
 from src.data import *
 from src.type import *
 from src.packets import *
 from lib.arg_parse import *
 from src.contrib.vxlan import *
+from src.p4_support.transpiler import *
+
+src.settings.init()
 
 debug_flag = False
 
@@ -99,6 +103,11 @@ parser.add_argument('-pkt','--packetsize',nargs=1, metavar='',
 					dest='packetsizes',
 					required=False,
 					default=['64'])
+parser.add_argument('-p4',metavar='', 
+				help="R|Specify a P4 code to autogenerates the traces\n"
+					" Default: none", 
+					dest='p4_code', action="store", 
+					default="none")
 parser.add_argument('-u', '--usecase',metavar='', 
 				help="R|Use Case:\n"
 					" macsad\n"
@@ -142,6 +151,9 @@ packet_sizes = [int(e) for e in (args.packetsizes[0]).split(',')]
 #Enable debug
 debug_flag = args.debug_flag
 
+#P4 Code
+p4_code = args.p4_code
+
 #Use Case
 use_case = args.use_case
 
@@ -156,10 +168,29 @@ log("User Specified Data: %s" % (usr_data))
 
 #Get Protocol type, transport protocol and distribution
 e = pkt_type('Protocol')
-e.get_tra_type(args.transport)
-log("Transport: %s, reference value: %d" % (args.transport, e.tra))
-e.get_prot_type(args.type, e.tra)
-log("Protocol: %s, reference value: %d - %s" % (args.type, e.protoID, e.protoName))
+
+#If P4 code is defined, then run the transpiler and get the Protocol
+#The Headers information will be stored at src.settings
+if p4_code != 'none':
+	p = run_transpiler('A')
+	p.principal(p4_code)
+
+	e.get_prot(src.settings.header_list_len, src.settings.header_list_val)
+	log("List of P4 headers lenght %s" % (src.settings.header_list_len))
+	log("List of P4 headers values %s" % (src.settings.header_list_val))
+
+	e.get_tra_type(args.transport)
+	log("Transport: %s, reference value: %d" % (args.transport, e.tra))
+	e.get_prot_type(args.type, e.tra)
+	log("Protocol: %s, reference value: %d - %s" % (args.type, e.protoID, e.protoName))
+
+#if is not a P4 code input
+else:
+	e.get_tra_type(args.transport)
+	log("Transport: %s, reference value: %d" % (args.transport, e.tra))
+	e.get_prot_type(args.type, e.tra)
+	log("Protocol: %s, reference value: %d - %s" % (args.type, e.protoID, e.protoName))
+
 e.get_random(val_random)
 log("Random IP %s, Random MAC %s, Random Protocol %s" % (val_random[0], val_random[1], val_random[2]))
 log("Random data size: %s" % (e.pktsize))
