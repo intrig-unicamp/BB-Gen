@@ -174,6 +174,3 @@ class pkt_type:
 				 		self.transport = 'tcp'
 				 	elif self.protocol == 'udp':
 				 		self.transport = 'udp'
-
-		#self.get_tra_type(transport)
-		#self.get_prot_type(protocol, self.tra)
