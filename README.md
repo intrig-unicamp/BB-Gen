@@ -71,3 +71,6 @@ P Gyanesh Kumar Patra (gyanesh@dca.fee.unicamp.br)
 Christian Rodolfo Esteve Rothenberg (chesteve@dca.fee.unicamp.br)  
 
 We are members of [INTRIG (Information & Networking Technologies Research & Innovation Group)](http://intrig.dca.fee.unicamp.br) at University of Campinas - Unicamp, SP, Brazil.
+
+## Acknowledgments
+This work was supported by the Innovation Center, Ericsson Telecomunicações S.A., Brazil under grant agreement UNI.61.
