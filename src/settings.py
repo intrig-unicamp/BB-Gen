@@ -29,10 +29,9 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#Install packages necessary for BB-Gen
-sudo apt-get install -y python python-pip python-dev build-essential python-yaml graphviz python-setuptools
-sudo pip install scapy
-git submodule update --init --recursive
-cd p4-hlir
-sudo python setup.py install
-cd ..
+
+def init():
+    global header_list_len
+    global header_list_val
+    header_list_len = []
+    header_list_val = []

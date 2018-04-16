@@ -1,5 +1,2 @@
 #built using gitignore template from "https://github.com/github/gitignore"
 *.pyc
-MANIFEST
-/dist
-/build
