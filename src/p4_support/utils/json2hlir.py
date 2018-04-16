@@ -212,7 +212,7 @@ def json2hlir(filepath):
 
     p4_program = P4Program("", -1, all_p4_objects)
 
-    with open('src/utils/primitives.json') as data_file:
+    with open('src/p4_support/utils/primitives.json') as data_file:
         primitives = json.load(data_file)
 
     sc = P4SemanticChecker()

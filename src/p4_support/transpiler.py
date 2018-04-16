@@ -32,6 +32,7 @@
 
 
 from utils.misc import *
+from utils.json2hlir import *
 
 from subprocess import call
 
@@ -207,16 +208,16 @@ class run_transpiler:
         #     print("FILE NOT FOUND: %s" % filepath)
         #     sys.exit(1)
 
-        # _, ext = os.path.splitext(filepath)
-        # if ext == '.p4':
-        hlir = HLIR(filepath)
-        success = build_hlir(hlir)
+        _, ext = os.path.splitext(filepath)
+        if ext == '.p4':
+            hlir = HLIR(filepath)
+            success = build_hlir(hlir)
         # elif ext == '.json':
         #     hlir = json2hlir(filepath)
         #     success = True
-        # else:
-        #     print("EXTENSION NOT SUPPORTED: %s" % ext)
-        #     sys.exit(1)
+        else:
+            print("EXTENSION NOT SUPPORTED: %s" % ext)
+            sys.exit(1)
 
         if not success:
             print("Transpiler failed for use-case %s" % (os.path.basename(__file__)))

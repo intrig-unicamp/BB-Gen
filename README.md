@@ -20,7 +20,7 @@ The PCAPs can be used for testing together with tools such as NFPA.
 ## Usage
 
     main.py [-h] [-p] [-t] [-n] [-nm] [-rnip] [-rnmac] [-rnport] [-pkt]
-               [-u] [-udata] [-perf] [-d] [-v]
+            [-p4] [-u] [-udata] [-perf] [-d] [-v]
 
 BB-Gen PCAP generator
 
@@ -47,6 +47,8 @@ BB-Gen PCAP generator
                            In case of more than one, separated the list with coma
                            e.g. 64,215,514.
                            Default: 64
+    -p4                   Specify a P4 code to autogenerates the traces
+                           Default: none
     -u , --usecase        Use Case:
                            macsad
                            Default: none
@@ -56,6 +58,24 @@ BB-Gen PCAP generator
                            Default: False
     -d, --debug           Debug enable
     -v                    show program's version number and exit
+
+## Running BB-Gen
+
+Designed for simplicity, BB-Gen delivers an intuitive CLI based interface. By specifying only a few flags, can be created a set of traces files.
+
+### Examples:
+
+Generation of 100 vxlan traces with packet size of 64B:
+
+$ `python main.py -p vxlan -n 100`
+
+Generation of random 1k IPv4 traces for performance test:
+
+$ `python main.py -p ipv4 -n 1000 -rnip -rnmac -rnport --performance`
+
+MACSAD use case:
+
+$ `python main.py -u macsad`
 
 ## Supported Protocols:
   - Ethernet
