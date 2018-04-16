@@ -77,6 +77,10 @@ MACSAD use case:
 
 $ `python main.py -u macsad`
 
+Using a P4 code to autogenerate 100 traces:
+
+$ `python main.py -p4 examples/p4_src/l3_fwd_ipv6.p4 -n 100`
+
 ## Supported Protocols:
   - Ethernet
   - IPv4 / IPv6
