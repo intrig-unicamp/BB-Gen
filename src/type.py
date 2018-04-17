@@ -64,6 +64,7 @@ vxlan = [[],[]]
 arp_t = [[],[]]
 arp_ipv4_t = [[],[]]
 gre = [[],[]]
+bb = [[],[]]
 
 class pkt_type:
 
@@ -92,6 +93,9 @@ class pkt_type:
 			self.protoName = data
 		elif data == 'l2':
 			self.protoID = 4
+			self.protoName = data
+		elif data == 'bb':
+			self.protoID = 5
 			self.protoName = data
 		else: #ipv4
 			self.protoID = 0
@@ -132,7 +136,7 @@ class pkt_type:
 
 	def get_prot(self, header_list_len, header_list_val):
 		
-		header_list = ['l2', 'arp', 'arp', 'ipv4', 'ipv4', 'ipv6', 'udp', 'tcp', 'vxlan', 'gre']
+		header_list = ['l2', 'arp', 'arp', 'ipv4', 'ipv4', 'ipv6', 'udp', 'tcp', 'vxlan', 'gre', 'bb']
 
 		ethernet[0] = ['48', '48', '16']
 		ethernet[1] = ['dstAddr', 'srcAddr', 'etherType']
@@ -164,7 +168,10 @@ class pkt_type:
 		gre[0] = ['1', '1', '1', '1', '1', '3', '5', '3', '16']
 		gre[1] = ['C', 'R', 'K', 'S', 's', 'recurse', 'flags', 'ver', 'proto']
 
-		headers = [ethernet, arp_t, arp_ipv4_t, ipv4, ipv4_2, ipv6, udp, tcp, vxlan, gre]
+		bb[0] = ['16', '8', '8']
+		bb[1] = ['r2', 'c3', 'c2']
+
+		headers = [ethernet, arp_t, arp_ipv4_t, ipv4, ipv4_2, ipv6, udp, tcp, vxlan, gre, bb]
 
 		for val in xrange(0,len(headers)):
 			for hed in xrange(0,len(header_list_len)):

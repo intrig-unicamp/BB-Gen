@@ -3,3 +3,4 @@
 - [x] Add more P4 examples   
 - [ ] Clean transpiler and p4_prot     
 - [ ] Add support for json
+- [ ] Create a template to add new protocols

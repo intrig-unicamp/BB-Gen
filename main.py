@@ -207,6 +207,8 @@ log("MAC destination list: \n %s" % (f.macdst))
 f.port_gen(entries,e.ranport)
 log("Port source list: \n %s" % (f.portsrc))
 log("Port destination list: \n %s" % (f.portdst))
+f.num_gen(entries,e.ranport)
+log("Numbers list: \n %s" % (f.num))
 
 #Get encapsulated IP, MAC and Port list, for VXLAN and GRE
 log("Encapsulated Headers info")
@@ -246,6 +248,7 @@ h.pkt_gen(
 			usr_data,
 			f.macsrc_h,
 			f.macdst_h,
+			f.num,
 			e.dist_name,
 			performance
 		)

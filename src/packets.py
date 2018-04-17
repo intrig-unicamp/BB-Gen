@@ -35,6 +35,7 @@ import sys
 import random
 from random import shuffle
 from scapy.all import *
+from contrib.bb import *
 
 # The create_pkt class generates the pkts list to be added to the output file
 # creates the traces and PCAP from the data.
@@ -57,7 +58,7 @@ pkt_size_list_performance = [64, 128, 256, 512, 1024, 1280, 1518]
 info_line = 0
 
 #Generates the Traces files
-def create_trace(prot, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, mil, p, macsrc_e, macdst_e, ipsrc_e, ipdst_e, portsrc_e, portdst_e, use_case, macsrc_h, macdst_h, tprefix, dist_name, cfile):
+def create_trace(prot, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, mil, p, macsrc_e, macdst_e, ipsrc_e, ipdst_e, portsrc_e, portdst_e, use_case, macsrc_h, macdst_h, tprefix, dist_name, cfile, num_gen):
 	global info_line
 	if cfile == 0:
 		nfile = ">"
@@ -115,6 +116,12 @@ def create_trace(prot, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, 
 			os.system(FILE)
 			info_line = 1
 		FILE = "echo " + macsrc[p] + "," + macdst[p] + " " + nfile + " " + tprefix + "_l2_" + str(entries*mil) + "_" + dist_name + ".txt"
+	if prot == 5:
+		if info_line == 0:
+			FILE = "echo \"r2, c3, c2\" " +  "" + nfile + " " + tprefix + "_bb_" + str(entries*mil) + "_" + dist_name + ".txt"
+			os.system(FILE)
+			info_line = 1
+		FILE = "echo " + str(num_gen[p]) + "," + str(num_gen[p]) + "," + str(num_gen[p]) + " " + nfile + " " + tprefix + "_bb_" + str(entries*mil) + "_" + dist_name + ".txt"
 	cfile = 1
 	os.system(FILE)
 	return cfile
@@ -130,10 +137,12 @@ def remove_copy_pcap(fprefix, prot, entries, dist_name):
 		rem = "rm %s_gre_%d_%s_*"  % (fprefix, entries, dist_name)
 	if prot == 4:
 		rem = "rm %s_l2_%d_%s_*"  % (fprefix, entries, dist_name)
+	if prot == 5:
+		rem = "rm %s_bb_%d_%s_*"  % (fprefix, entries, dist_name)
 	os.system(rem)
 	return
 
-def create_pkt_hdrs(protoName, p, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, tra, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e):
+def create_pkt_hdrs(protoName, p, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, tra, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e, num_gen):
 	if protoName == "ipv4":
 		if tra == 0:
 			pkt_hdr = Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/TCP(dport=portdst[p],sport=portsrc[p])
@@ -154,6 +163,8 @@ def create_pkt_hdrs(protoName, p, macdst, macsrc, ipdst, ipsrc, portdst, portsrc
 			pkt_hdr = Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/GRE()/IP(dst=ipdst[p],src=ipsrc[p])/UDP(dport=portdst[p], sport=portsrc[p])
 	elif protoName == "l2":
 		pkt_hdr = Ether(dst=macdst[p],src=macsrc[p])
+	elif protoName == "bb":
+		pkt_hdr = BB(r2=num_gen[p],c3=num_gen[p],c2=num_gen[p])
 
 	return pkt_hdr
 
@@ -163,7 +174,7 @@ class create_pkt:
 		self.pkts = []
 
 
-	def pkt_gen(self, entries, pkt_size_list, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, protoID, protoName, tra, pname_arg, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e, use_case, usr_data, macsrc_h, macdst_h, dist_name, performance):
+	def pkt_gen(self, entries, pkt_size_list, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, protoID, protoName, tra, pname_arg, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e, use_case, usr_data, macsrc_h, macdst_h, num_gen, dist_name, performance):
 		
 		mil = 1
 		if entries == 1000000:
@@ -193,7 +204,7 @@ class create_pkt:
 			for j in range(0, mil):
 				for p in range(0, entries):
 
-					pkt_tmp = create_pkt_hdrs(protoName, p, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, tra, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e)
+					pkt_tmp = create_pkt_hdrs(protoName, p, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, tra, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e, num_gen)
 
 					# print "pkt_wsize_list %d, pkt_tmp len %d, rand string length %d" %(pkt_wsize_list[i], len(pkt_tmp), pkt_wsize_list[i]-len(pkt_tmp))
 					if (usr_data==""):
@@ -204,7 +215,7 @@ class create_pkt:
 						pkt_size_proto = len(pkt_tmp) + 4
 						
 					if f == 0:
-						cfile = create_trace(protoID, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, mil, p, macsrc_e, macdst_e, ipsrc_e, ipdst_e, portsrc_e, portdst_e, use_case, macsrc_h, macdst_h, tprefix, dist_name, cfile)
+						cfile = create_trace(protoID, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, mil, p, macsrc_e, macdst_e, ipsrc_e, ipdst_e, portsrc_e, portdst_e, use_case, macsrc_h, macdst_h, tprefix, dist_name, cfile, num_gen)
 
 				pname = "%s_%s_%d_%s_%d.%dbytes.pcap" % (pprefix, protoName, entries, dist_name, j, pkt_size_proto)
 				namef = "%s_%s_%d_%s.%dbytes.pcap" % (pprefix, protoName, entries*mil, dist_name, pkt_size_proto)

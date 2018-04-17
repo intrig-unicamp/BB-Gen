@@ -52,6 +52,7 @@ class generator:
 		self.macdst_h = []
 		self.portsrc = []
 		self.portdst = []
+		self.num = []
 
 	#Generates IP address
 	def ip_gen(self, entries, dist, data):
@@ -175,3 +176,16 @@ class generator:
 			#Disable shuffle for simple traffic
 			if dist == 0:
 				shuffle(u)
+
+	def num_gen(self, entries, dist):
+		t = []
+		num_bb = 0
+		for i in range(0,255):
+		    t.append(i)
+		shuffle(t)
+		for m in range(entries):
+			num_bb = t[0]
+			self.num.append(num_bb)
+			#Disable shuffle for simple traffic
+			if dist == 0:
+				shuffle(t)
