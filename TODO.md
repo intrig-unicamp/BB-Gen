@@ -4,3 +4,35 @@
 - [ ] Clean transpiler and p4_prot     
 - [ ] Add support for json
 - [ ] Create a template to add new protocols
+
+## Add new protocol
+  - P4
+  - main 
+  	- #Get IP, MAC and Port list or new value
+  	- h.pkt_gen send new values
+  - contrib
+  	- protocol template
+  - data
+  	- self.new_value
+  	- add function to generate new values
+  - packets
+  	- import new protocol
+  	- create_trace
+  		- add new value parameters
+  		- add new protocol validation to generate the table trace
+  	- remove_copy_pcap
+  		- add new protocol validation to remove old pcaps
+  	- create_pkt_hdrs
+  		- add new value parameters
+  		- add new protocol validation to generate the packet
+  	- pkt_gen
+  		- add new value parameters
+  		- Update parameters for pkt_tmp
+  		- Update parameters for cfile
+  - type
+  	- add new protocol list
+  	- pkt_type
+  		- add new protocol validation to define protocol id
+  	- get_prot
+  		- add new protocol to header_list and headers
+  		- add new protocol definition values and names
