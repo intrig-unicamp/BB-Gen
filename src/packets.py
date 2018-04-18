@@ -50,12 +50,6 @@ import src.settings
 # 3	GRE
 # 4	L2
 
-proto_list = ["ipv4", "ipv6", "vxlan", "gre", "l2"]
-plist = list(enumerate(proto_list, start=0))
-
-pkt_size_list_performance = [64, 128, 256, 512, 1024, 1280, 1518]
-# pkt_wsize_list = [60, 124, 252, 508, 1020, 1276, 1514]
-
 info_line = 0
 
 #Generates the Traces files
@@ -175,7 +169,7 @@ class create_pkt:
 
 		#Enable performance sizes
 		if src.settings.performance == True:
-			src.settings.packet_sizes = pkt_size_list_performance
+			src.settings.packet_sizes = src.settings.pkt_size_list_performance
 
 		#Set the PCAP and Trace names:
 		if src.settings.pname == "noname":

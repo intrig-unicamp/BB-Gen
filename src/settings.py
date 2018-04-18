@@ -64,7 +64,10 @@ def init():
     global ranmac
     global ranport
 
-    #Protocol definition
+    #Performance pkt sizes
+    global pkt_size_list_performance
+    
+    #P4 Protocol definition
     global header_list
     global headers
 
@@ -104,6 +107,9 @@ def init():
     ranip = 1
     ranmac = 1
     ranport = 1
+
+    #Performance pkt sizes
+    pkt_size_list_performance = [64, 128, 256, 512, 1024, 1280, 1518]
 
     #Protocol definition - for P4 use cases
     #Add the definition of the fields of the new protocol and include in headers and header_list
