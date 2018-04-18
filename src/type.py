@@ -35,6 +35,7 @@ import string
 import sys
 import random
 from random import shuffle
+import src.settings 
 
 # The pkt_type Class defines the type of pkts to create, the transport protocol UDP/TCP
 # and defines the distribution of the data
@@ -71,8 +72,6 @@ class pkt_type:
 	def __init__(self, name):
 		self.name = name
 		self.pktsize = []
-		self.protoID = 0
-		self.protoName = ""
 		self.tra = 0
 		self.ranip = 1
 		self.ranmac = 1
@@ -81,31 +80,21 @@ class pkt_type:
 		self.protocol = ""
 		self.transport = ""
 
-	def get_prot_type(self, data, tra):
-		if data == 'ipv6':
-			self.protoID = 1
-			self.protoName = data
-		elif data == 'vxlan':
-			self.protoID = 2
-			self.protoName = data
-		elif data == 'gre':
-			self.protoID = 3
-			self.protoName = data
-		elif data == 'l2':
-			self.protoID = 4
-			self.protoName = data
-		elif data == 'bb':
-			self.protoID = 5
-			self.protoName = data
-		else: #ipv4
-			self.protoID = 0
-			self.protoName = "ipv4"
+	def get_prot_type(self, data):
+		if data in src.settings.proto_list:
+			src.settings.proto_selected = data
+		else:
+			print "Protocol not supported, using default value: ipv4"
+
 
 	def get_tra_type(self, data):
 		if data == 'udp':
 			self.tra = 1
 		else:
 			self.tra = 0
+
+		src.settings.proto_selected_tr = data
+
 
 	def get_random(self, data):
 		if data[0] == True:
@@ -134,50 +123,50 @@ class pkt_type:
 		else:
 			self.dist_name = ipname + "_" + macname + "_" + portname
 
-	def get_prot(self, header_list_len, header_list_val):
+
+		if data[0] == True:
+			src.settings.ranip = 0
+			ipname = "rip"
+		else:
+			src.settings.ranip = 1
+			ipname = "sip"
+		if data[1] == True:
+			src.settings.ranmac = 0
+			macname = "rmac"
+		else:
+			src.settings.ranmac = 1
+			macname = "smac"		
+		if data[2] == True:
+			src.settings.ranport = 0
+			portname = "rport"
+		else:
+			src.settings.ranport = 1
+			portname = "sport"
 		
-		header_list = ['l2', 'arp', 'arp', 'ipv4', 'ipv4', 'ipv6', 'udp', 'tcp', 'vxlan', 'gre', 'bb']
+		if data[0] == True and data[1] == True and data[2] == True:
+			src.settings.dist_name = "random"
+		elif data[0] == False and data[1] == False and data[2] == False:
+			src.settings.dist_name = "simple"
+		else:
+			src.settings.dist_name = ipname + "_" + macname + "_" + portname
 
-		ethernet[0] = ['48', '48', '16']
-		ethernet[1] = ['dstAddr', 'srcAddr', 'etherType']
-
-		ipv4[0] = ['4', '4', '8', '16', '16', '3', '13', '8', '8', '16', '32', '32']
-		ipv4[1] = ['version', 'ihl', 'diffserv', 'totalLen', 'identification', 'frag', 'Offset', 'ttl', 'protocol', 'hdrChecksum', 'srcAddr', 'dstAddr']
-
-		ipv4_2[0] = ['8', '8', '16', '16', '16', '8', '8', '16', '32', '32']
-		ipv4_2[1] = ['versionIhl', 'diffserv', 'totalLen', 'identification', 'fragOffset', 'ttl', 'protocol', 'hdrChecksum', 'srcAddr', 'dstAddr']
-
-		ipv6[0] = ['4', '8', '20', '16', '8', '8', '128', '128']
-		ipv6[1] = ['version', 'trafficClass', 'flowLabel', 'payloadLen', 'nextHdr', 'hopLimit', 'srcAddr', 'dstAddr']
-
-		udp[0] = ['16', '16', '16', '16']
-		udp[1] = ['srcPort', 'dstPort', 'length_', 'checksum']
-
-		tcp[0] = ['16', '16', '32', '32', '4', '4', '8', '16', '16', '16']
-		tcp[1] = ['srcPort', 'dstPort', 'seqNo', 'ackNo', 'dataOffset', 'res', 'flags', 'window', 'checksum', 'urgentPtr']
-
-		vxlan[0] = ['8', '24', '24', '8']
-		vxlan[1] = ['flags', 'reserved', 'vni', 'reserved2']
-
-		arp_t[0] = ['16', '16', '8', '8', '16']
-		arp_t[1] = ['htype', 'ptype', 'hlength', 'plength', 'opcode']
-
-		arp_ipv4_t[0] = ['16', '16', '8', '8', '16']
-		arp_ipv4_t[1] = ['htype', 'ptype', 'hlength', 'plength', 'opcode']
-
-		gre[0] = ['1', '1', '1', '1', '1', '3', '5', '3', '16']
-		gre[1] = ['C', 'R', 'K', 'S', 's', 'recurse', 'flags', 'ver', 'proto']
-
-		bb[0] = ['16', '8', '8']
-		bb[1] = ['r2', 'c3', 'c2']
-
-		headers = [ethernet, arp_t, arp_ipv4_t, ipv4, ipv4_2, ipv6, udp, tcp, vxlan, gre, bb]
-
-		for val in xrange(0,len(headers)):
+	def get_prot(self, header_list_len):
+		
+		for val in xrange(0,len(src.settings.headers)):
 			for hed in xrange(0,len(header_list_len)):
-				if header_list_len[hed] == headers[val][0]:
-				 	self.protocol = header_list[val]
+				if header_list_len[hed] == src.settings.headers[val][0]:
+				 	self.protocol = src.settings.header_list[val]
 				 	if self.protocol == 'tcp':
 				 		self.transport = 'tcp'
 				 	elif self.protocol == 'udp':
 				 		self.transport = 'udp'
+
+		for val in xrange(0,len(src.settings.headers)):
+			for hed in xrange(0,len(header_list_len)):
+				if header_list_len[hed] == src.settings.headers[val][0]:
+				 	src.settings.proto_p4 = src.settings.header_list[val]
+				 	if src.settings.proto_p4 == 'tcp':
+				 		src.settings.proto_p4_tr = 'tcp'
+				 	elif src.settings.proto_p4 == 'udp':
+				 		src.settings.proto_p4_tr = 'udp'
+

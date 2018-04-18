@@ -4,11 +4,17 @@
 - [ ] Clean transpiler and p4_prot     
 - [ ] Add support for json
 - [ ] Create a template to add new protocols
+- [ ] Update num_range_gen to generate a number with the range_val set in Bytes
+- [ ] Move global variables to settings
+  - [ ] type
+  - [ ] data
+  - [ ] main
+  - [ ] packets
 
 ## Add new protocol
   - P4
   - main 
-  	- #Get IP, MAC and Port list or new value
+  	- Get IP, MAC and Port list or new value
   	- h.pkt_gen send new values
   - contrib
   	- protocol template

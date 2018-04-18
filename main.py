@@ -135,120 +135,112 @@ parser.add_argument('-v', action='version', version='BB-gen 1.0')
 args = parser.parse_args()
 
 #Number of Entries
-entries = args.num
-log("Number of Entries: %s" % (entries))
+src.settings.entries = args.num
+log("Number of Entries: %s" % (src.settings.entries))
 
 #PCAP name TODO
-pname = args.name
-log("PCAP and Trace name: %s" % (pname))
+src.settings.pname = args.name
+log("PCAP and Trace name: %s" % (src.settings.pname))
 
 #Select random data
-val_random = [args.rnip, args.rnmac, args.rnport] 
+src.settings.val_random = [args.rnip, args.rnmac, args.rnport] 
 
 #Get Pakcet sizes
-packet_sizes = [int(e) for e in (args.packetsizes[0]).split(',')]
+src.settings.packet_sizes = [int(e) for e in (args.packetsizes[0]).split(',')]
 
 #Enable debug
-debug_flag = args.debug_flag
+src.settings.debug_flag = args.debug_flag
 
 #P4 Code
-p4_code = args.p4_code
+src.settings.p4_code = args.p4_code
 
 #Use Case
-use_case = args.use_case
+src.settings.use_case = args.use_case
 
 #Performance 
-performance = args.performance
+src.settings.performance = args.performance
 
 #User specified data
 #For this case the packet_sizes should have the default list i.e., ['64']
-usr_data = args.udata
-packet_sizes = [64]
-log("User Specified Data: %s" % (usr_data))
+src.settings.usr_data = args.udata
+src.settings.packet_sizes = [64]
+log("User Specified Data: %s" % (src.settings.usr_data))
 
 #Get Protocol type, transport protocol and distribution
 e = pkt_type('Protocol')
 
 #If P4 code is defined, then run the transpiler and get the Protocol
 #The Headers information will be stored at src.settings
-if p4_code != 'none':
+if src.settings.p4_code != 'none':
 	p = run_transpiler('A')
-	p.principal(p4_code)
+	p.principal(src.settings.p4_code)
 
-	e.get_prot(src.settings.header_list_len, src.settings.header_list_val)
+	e.get_prot(src.settings.header_list_len)
 	log("List of P4 headers lenght %s" % (src.settings.header_list_len))
 	log("List of P4 headers values %s" % (src.settings.header_list_val))
 
 	e.get_tra_type(e.transport)
 	log("Transport: %s, reference value: %d" % (e.transport, e.tra))
-	e.get_prot_type(e.protocol, e.tra)
-	log("Protocol: %s, reference value: %d - %s" % (e.protocol, e.protoID, e.protoName))
+	e.get_prot_type(e.protocol)
+	log("Protocol: %s, reference value: %d - %s" % (e.protocol, src.settings.proto_list[src.settings.proto_selected], src.settings.proto_selected))
 
 #if is not a P4 code input
 else:
 	e.get_tra_type(args.transport)
 	log("Transport: %s, reference value: %d" % (args.transport, e.tra))
-	e.get_prot_type(args.type, e.tra)
-	log("Protocol: %s, reference value: %d - %s" % (args.type, e.protoID, e.protoName))
+	e.get_prot_type(args.type)
+	log("Protocol: %s, reference value: %d - %s" % (args.type, src.settings.proto_list[src.settings.proto_selected], src.settings.proto_selected))
 
-e.get_random(val_random)
-log("Random IP %s, Random MAC %s, Random Protocol %s" % (val_random[0], val_random[1], val_random[2]))
+e.get_random(src.settings.val_random)
+log("Random IP %s, Random MAC %s, Random Protocol %s" % (src.settings.val_random[0], src.settings.val_random[1], src.settings.val_random[2]))
 log("Random data size: %s" % (e.pktsize))
 
 #Get IP, MAC and Port list
 log("Principal Headers info")
 f = generator('principal')
-f.ip_gen(entries,e.ranip,e.protoID)
+f.ip_gen(src.settings.entries,e.ranip,src.settings.proto_list[src.settings.proto_selected])
 log("IP source list: \n %s" % (f.ipsrc))
 log("IP destination list: \n %s" % (f.ipdst))
-f.mac_gen(entries,e.ranmac)
+f.mac_gen(src.settings.entries,e.ranmac)
 log("MAC source list: \n %s" % (f.macsrc))
 log("MAC destination list: \n %s" % (f.macdst))
-f.port_gen(entries,e.ranport)
+f.port_gen(src.settings.entries,e.ranport)
 log("Port source list: \n %s" % (f.portsrc))
 log("Port destination list: \n %s" % (f.portdst))
-f.num_gen(entries,e.ranport)
+f.num_gen(src.settings.entries,0)
 log("Numbers list: \n %s" % (f.num))
 
 #Get encapsulated IP, MAC and Port list, for VXLAN and GRE
 log("Encapsulated Headers info")
 g = generator('encap')
-g.ip_gen(entries,e.ranip,e.protoID)
+g.ip_gen(src.settings.entries,e.ranip,src.settings.proto_list[src.settings.proto_selected])
 log("IP source list: \n %s" % (g.ipsrc))
 log("IP destination list: \n %s" % (g.ipdst))
-g.mac_gen(entries,e.ranmac)
+g.mac_gen(src.settings.entries,e.ranmac)
 log("MAC source list: \n %s" % (g.macsrc))
 log("MAC destination list: \n %s" % (g.macdst))
-g.port_gen(entries,e.ranport)
+g.port_gen(src.settings.entries,e.ranport)
 log("Port source list: \n %s" % (g.portsrc))
 log("Port destination list: \n %s" % (g.portdst))
 
 #Create PCAP
 h = create_pkt('A')
 h.pkt_gen(
-			entries,
-			packet_sizes, 
 			f.macdst, 
 			f.macsrc, 
 			f.ipdst, 
 			f.ipsrc, 
 			f.portdst, 
 			f.portsrc,
-			e.protoID,
-			e.protoName, 
 			e.tra, 
-			pname, 
 			g.macdst, 
 			g.macsrc, 
 			g.ipdst, 
 			g.ipsrc, 
 			g.portdst, 
 			g.portsrc,
-			use_case,
-			usr_data,
 			f.macsrc_h,
 			f.macdst_h,
 			f.num,
 			e.dist_name,
-			performance
 		)
