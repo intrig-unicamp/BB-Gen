@@ -43,7 +43,7 @@ import src.settings
 # If the number of entries is more than 1M the PCAP is going to be splited in
 # PCAPs of 10000 entires and then all the files are going to be joined
 #
-# Protocols prot
+# Protocols list
 # 0	IPv4
 # 1	IPv6
 # 2	VXLAN
@@ -127,19 +127,8 @@ def create_trace(prot, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, 
 	os.system(FILE)
 	return cfile
 
-def remove_copy_pcap(fprefix, prot, entries, dist_name):
-	if prot == 0:
-		rem = "rm %s_ipv4_%d_%s_*"  % (fprefix, entries, dist_name)
-	if prot == 1:
-		rem = "rm %s_ipv6_%d_%s_*"  % (fprefix, entries, dist_name)
-	if prot == 2:
-		rem = "rm %s_vxlan_%d_%s_*"  % (fprefix, entries, dist_name)
-	if prot == 3:
-		rem = "rm %s_gre_%d_%s_*"  % (fprefix, entries, dist_name)
-	if prot == 4:
-		rem = "rm %s_l2_%d_%s_*"  % (fprefix, entries, dist_name)
-	if prot == 7:
-		rem = "rm %s_bb_%d_%s_*"  % (fprefix, entries, dist_name)
+def remove_copy_pcap(fprefix, entries, dist_name):
+	rem = "rm %s_%s_%d_%s_*"  % (fprefix, src.settings.proto_selected, entries, src.settings.dist_name)
 	os.system(rem)
 	return
 
@@ -240,4 +229,4 @@ class create_pkt:
 			f = 1
 
 		#Remove temporary files
-		remove_copy_pcap(pprefix, src.settings.proto_list[src.settings.proto_selected], entries, src.settings.dist_name)
+		remove_copy_pcap(pprefix, entries, src.settings.dist_name)
