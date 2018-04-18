@@ -6,9 +6,9 @@
 - [ ] Create a template to add new protocols
 - [ ] Update num_range_gen to generate a number with the range_val set in Bytes
 - [ ] Move global variables to settings
-  - [ ] type
-  - [ ] data
-  - [ ] main
+  - [x] type
+  - [x] data - We will maintain the variables locally
+  - [x] main
   - [ ] packets
 
 ## Add new protocol

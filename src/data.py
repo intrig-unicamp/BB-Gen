@@ -34,6 +34,7 @@ import string
 import sys
 import random
 from random import shuffle
+import src.settings 
 
 # The generator Class creates the list of IP address, MAC address and Port numbers
 # with the defined distribution:
@@ -53,9 +54,10 @@ class generator:
 		self.portsrc = []
 		self.portdst = []
 		self.num = []
+		self.num_range = []
 
 	#Generates IP address
-	def ip_gen(self, entries, dist, data):
+	def ip_gen(self):
 		pkts = []
 		r = []
 		for i in range(1,254):
@@ -69,8 +71,8 @@ class generator:
 		ipdst_c = ""
 		s = 0
 		#For IPv6
-		if data == 1:
-			for m in range(entries):
+		if src.settings.proto_list[src.settings.proto_selected] == 1:
+			for m in range(src.settings.entries):
 				l = 0
 				ipsrc_c = ""
 				ipdst_c = ""
@@ -88,7 +90,7 @@ class generator:
 				self.ipsrc.append(ipsrc_c)
 		#For ipv4
 		else:
-			for m in range(entries):
+			for m in range(src.settings.entries):
 				if s == 0:
 					l = 0
 					ipsrc_c = ""
@@ -104,13 +106,13 @@ class generator:
 						l = l + 1
 						shuffle(r)
 						#Disable main loop for simple traffic
-						if dist == 1:
+						if src.settings.ranip == 1:
 							s = 1
 				self.ipdst.append(ipdst_c)
 				self.ipsrc.append(ipsrc_c)
 
 	#Generates MAC address
-	def mac_gen(self, entries, dist):
+	def mac_gen(self):
 		pkts = []
 		k = []
 		for i in range(16):
@@ -122,7 +124,7 @@ class generator:
 		macsrc_hex = ""
 		macdst_hex = ""
 		s = 0
-		for m in range(entries):
+		for m in range(src.settings.entries):
 			if s == 0:
 				macsrc_c = "f0:76:1c:"
 				macdst_c = "f0:76:1c:"
@@ -153,7 +155,7 @@ class generator:
 					l = l + 1
 					shuffle(k)
 					#Disable main loop for simple traffic
-					if dist == 1:
+					if src.settings.ranmac == 1:
 						s = 1
 			self.macdst.append(macdst_c)
 			self.macsrc.append(macsrc_c)
@@ -161,31 +163,44 @@ class generator:
 			self.macsrc_h.append(macsrc_hex)
 
 	#Generates Port numbers from 49152 to 65535
-	def port_gen(self, entries, dist):
+	def port_gen(self):
 		u = []
 		portsrc_c = 0
 		porrdst_c = 0
 		for i in range(49152,65535):
 		    u.append(i)
 		shuffle(u)
-		for m in range(entries):
+		for m in range(src.settings.entries):
 			portsrc_c = u[0]
 			porrdst_c = u[1]
 			self.portsrc.append(portsrc_c)
 			self.portdst.append(porrdst_c)
 			#Disable shuffle for simple traffic
-			if dist == 0:
+			if src.settings.ranport == 0:
 				shuffle(u)
 
-	def num_gen(self, entries, dist):
+	def num_gen(self, dist):
 		t = []
 		num_bb = 0
 		for i in range(0,255):
 		    t.append(i)
 		shuffle(t)
-		for m in range(entries):
+		for m in range(src.settings.entries):
 			num_bb = t[0]
 			self.num.append(num_bb)
+			#Disable shuffle for simple traffic
+			if dist == 0:
+				shuffle(t)
+
+	def num_range_gen(self, dist, range_val):
+		t =[]
+		num_range = 0
+		for i in range(0,range_val):
+		    t.append(i)
+		shuffle(t)
+		for m in range(src.settings.entries):
+			num_range = t[0]
+			self.num_range.append(num_range)
 			#Disable shuffle for simple traffic
 			if dist == 0:
 				shuffle(t)

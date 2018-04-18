@@ -96,10 +96,10 @@ def init():
 
     #Default values
     proto_selected = 'ipv4'
-    proto_selected_tr = 'tcp'
+    proto_selected_tr = 1
     dist_name = 'simple'
     proto_p4 = ''
-    proto_p4_tr = ''
+    proto_p4_tr = 'tcp'
     dist_name = "simple"
     ranip = 1
     ranmac = 1

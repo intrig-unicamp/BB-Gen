@@ -145,20 +145,20 @@ def remove_copy_pcap(fprefix, prot, entries, dist_name):
 
 def create_pkt_hdrs(protoName, p, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, tra, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e, num_gen):
 	if protoName == "ipv4":
-		if tra == 0:
+		if src.settings.proto_selected_tr == 5:
 			pkt_hdr = Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/TCP(dport=portdst[p],sport=portsrc[p])
 		else:
 			pkt_hdr = Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/UDP(dport=portdst[p],sport=portsrc[p])
 	elif protoName == "ipv6":
 		#ipv6 # If we dont use TCP/UDP, why this if clause is here?
-		if tra == 0:
+		if src.settings.proto_selected_tr == 5:
 			pkt_hdr = Ether(dst=macdst[p],src=macsrc[p])/IPv6(dst=ipdst[p],src=ipsrc[p])
 		else:
 			pkt_hdr = Ether(dst=macdst[p],src=macsrc[p])/IPv6(dst=ipdst[p],src=ipsrc[p])
 	elif protoName == "vxlan":
 		pkt_hdr = Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/UDP(sport=portdst[p],dport=4789)/VXLAN(vni=100)/Ether(dst=macdst_e[p],src=macsrc_e[p])/IP(dst=ipdst_e[p],src=ipsrc_e[p])/TCP(dport=portdst_e[p],sport=portsrc_e[p])
 	elif protoName == "gre":
-		if tra == 0:
+		if src.settings.proto_selected_tr == 5:
 			pkt_hdr = Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/GRE()/IP(dst=ipdst[p],src=ipsrc[p])/TCP(dport=portdst[p], sport=portsrc[p])
 		else:
 			pkt_hdr = Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/GRE()/IP(dst=ipdst[p],src=ipsrc[p])/UDP(dport=portdst[p], sport=portsrc[p])
@@ -174,8 +174,7 @@ class create_pkt:
 	def __init__(self, name):
 		self.pkts = []
 
-
-	def pkt_gen(self, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, tra, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e, macsrc_h, macdst_h, num_gen, dist_name):
+	def pkt_gen(self, values_main, values_encap):
 		entries = src.settings.entries
 		mil = 1
 		if entries == 1000000:
@@ -205,7 +204,7 @@ class create_pkt:
 			for j in range(0, mil):
 				for p in range(0, entries):
 
-					pkt_tmp = create_pkt_hdrs(src.settings.proto_selected, p, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, tra, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e, num_gen)
+					pkt_tmp = create_pkt_hdrs(src.settings.proto_selected, p, values_main.macdst, values_main.macsrc, values_main.ipdst, values_main.ipsrc, values_main.portdst, values_main.portsrc, src.settings.proto_selected_tr, values_encap.macdst, values_encap.macsrc, values_encap.ipdst, values_encap.ipsrc, values_encap.portdst, values_encap.portsrc, values_main.num)
 
 					# print "pkt_wsize_list %d, pkt_tmp len %d, rand string length %d" %(pkt_wsize_list[i], len(pkt_tmp), pkt_wsize_list[i]-len(pkt_tmp))
 					if (src.settings.usr_data==""):
@@ -216,10 +215,10 @@ class create_pkt:
 						pkt_size_proto = len(pkt_tmp) + 4
 						
 					if f == 0:
-						cfile = create_trace(src.settings.proto_list[src.settings.proto_selected], macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, mil, p, macsrc_e, macdst_e, ipsrc_e, ipdst_e, portsrc_e, portdst_e, src.settings.use_case, macsrc_h, macdst_h, tprefix, dist_name, cfile, num_gen)
+						cfile = create_trace(src.settings.proto_list[src.settings.proto_selected], values_main.macsrc, values_main.macdst, values_main.ipsrc, values_main.ipdst, values_main.portsrc, values_main.portdst, entries, mil, p, values_encap.macsrc, values_encap.macdst, values_encap.ipsrc, values_encap.ipdst, values_encap.portsrc, values_encap.portdst, src.settings.use_case, values_main.macsrc_h, values_main.macdst_h, tprefix, src.settings.dist_name, cfile, values_main.num)
 
-				pname = "%s_%s_%d_%s_%d.%dbytes.pcap" % (pprefix, src.settings.proto_selected, entries, dist_name, j, pkt_size_proto)
-				namef = "%s_%s_%d_%s.%dbytes.pcap" % (pprefix, src.settings.proto_selected, entries*mil, dist_name, pkt_size_proto)
+				pname = "%s_%s_%d_%s_%d.%dbytes.pcap" % (pprefix, src.settings.proto_selected, entries, src.settings.dist_name, j, pkt_size_proto)
+				namef = "%s_%s_%d_%s.%dbytes.pcap" % (pprefix, src.settings.proto_selected, entries*mil, src.settings.dist_name, pkt_size_proto)
 
 				filenames.append(pname)
 
@@ -241,4 +240,4 @@ class create_pkt:
 			f = 1
 
 		#Remove temporary files
-		remove_copy_pcap(pprefix, src.settings.proto_list[src.settings.proto_selected], entries, dist_name)
+		remove_copy_pcap(pprefix, src.settings.proto_list[src.settings.proto_selected], entries, src.settings.dist_name)
