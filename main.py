@@ -206,7 +206,13 @@ log("MAC destination list: \n %s" % (values_main.macdst))
 values_main.port_gen()
 log("Port source list: \n %s" % (values_main.portsrc))
 log("Port destination list: \n %s" % (values_main.portdst))
-values_main.num_gen(0) #simple distribution
+
+#To be used with BB protocol
+#With src.settings.headers[10][0][2] will be used the second header argument of BB protocol (index 10)
+#In this case c3 with a size of 8 Bytes
+# bb[0] = ['16', '8', '8']
+# bb[1] = ['r2', 'c3', 'c2']
+values_main.num_gen(0, int(src.settings.headers[10][0][2])) #simple distribution
 log("Numbers list: \n %s" % (values_main.num))
 
 #Get encapsulated IP, MAC and Port list, for VXLAN and GRE

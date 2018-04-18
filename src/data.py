@@ -35,6 +35,7 @@ import sys
 import random
 from random import shuffle
 import src.settings 
+from math import pow
 
 # The generator Class creates the list of IP address, MAC address and Port numbers
 # with the defined distribution:
@@ -179,28 +180,16 @@ class generator:
 			if src.settings.ranport == 0:
 				shuffle(u)
 
-	def num_gen(self, dist):
+	#Generates values for a rang_val set in Bytes
+	def num_gen(self, dist, range_val):
 		t = []
 		num_bb = 0
-		for i in range(0,255):
+		for i in range(0,int(pow(2, range_val))-1):
 		    t.append(i)
 		shuffle(t)
 		for m in range(src.settings.entries):
 			num_bb = t[0]
 			self.num.append(num_bb)
-			#Disable shuffle for simple traffic
-			if dist == 0:
-				shuffle(t)
-
-	def num_range_gen(self, dist, range_val):
-		t =[]
-		num_range = 0
-		for i in range(0,range_val):
-		    t.append(i)
-		shuffle(t)
-		for m in range(src.settings.entries):
-			num_range = t[0]
-			self.num_range.append(num_range)
 			#Disable shuffle for simple traffic
 			if dist == 0:
 				shuffle(t)

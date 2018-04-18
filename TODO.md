@@ -4,7 +4,7 @@
 - [ ] Clean transpiler and p4_prot     
 - [ ] Add support for json
 - [ ] Create a template to add new protocols
-- [ ] Update num_range_gen to generate a number with the range_val set in Bytes
+- [x] Update num_range_gen to generate a number with the range_val set in Bytes - Updated num_gen
 - [ ] Move global variables to settings
   - [x] type
   - [x] data - We will maintain the variables locally
