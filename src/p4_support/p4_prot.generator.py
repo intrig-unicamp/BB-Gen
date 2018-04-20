@@ -48,7 +48,7 @@ drpPrimtv = 0
 
 ofCmd=""
 
-header_lenght = []
+header_length = []
 header_value = []
 
 
@@ -59,19 +59,19 @@ for header_val in hlir.p4_headers.values():
     #["${header_val.length}"
     #header_len  =  ','.join([str(hn) for hn in header_val.layout.values()])
     for hn in header_val.layout.values():
-        header_lenght.append(str(hn))
+        header_length.append(str(hn))
     ##[      Header length = ${header_len}
-    #[      Header length = ${header_lenght}
+    #[      Header length = ${header_length}
     #header_valo  =  ','.join([str(hn) for hn in header_val.layout.keys()])
     for hn in header_val.layout.keys():
         header_value.append(str(hn))   
     ##[      Header value = ${header_valo}
     #[      Header value = ${header_value}
     
-    src.settings.header_list_len.append(list(header_lenght))
+    src.settings.header_list_len.append(list(header_length))
     src.settings.header_list_val.append(list(header_value))
 
-    del header_lenght[:]
+    del header_length[:]
     del header_value[:]
 #[
 
