@@ -149,7 +149,7 @@ src.settings.val_random = [args.rnip, args.rnmac, args.rnport]
 src.settings.packet_sizes = [int(e) for e in (args.packetsizes[0]).split(',')]
 
 #Enable debug
-src.settings.debug_flag = args.debug_flag
+debug_flag = args.debug_flag
 
 #P4 Code
 src.settings.p4_code = args.p4_code
