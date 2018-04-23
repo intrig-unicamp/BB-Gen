@@ -113,49 +113,39 @@ def init():
 
     #Protocol definition - for P4 use cases
     #Add the definition of the fields of the new protocol and include in headers and header_list
-    # ethernet = [[],[]]
-    ipv4 = [[],[]]
-    ipv4_2 = [[],[]]
-    ipv6 = [[],[]]
-    udp = [[],[]]
-    tcp = [[],[]]
-    vxlan = [[],[]]
-    arp_t = [[],[]]
-    arp_ipv4_t = [[],[]]
-    gre = [[],[]]
-    bb = [[],[]]
 
-    ethernet = [['48', '48', '16'], ['dstAddr', 'srcAddr', 'etherType']]
+    ethernet = [['48', '48', '16'], 
+                ['dstAddr', 'srcAddr', 'etherType']]
 
-    ipv4[0] = ['4', '4', '8', '16', '16', '3', '13', '8', '8', '16', '32', '32']
-    ipv4[1] = ['version', 'ihl', 'diffserv', 'totalLen', 'identification', 'frag', 'Offset', 'ttl', 'protocol', 'hdrChecksum', 'srcAddr', 'dstAddr']
+    ipv4 = [['4', '4', '8', '16', '16', '3', '13', '8', '8', '16', '32', '32'],
+            ['version', 'ihl', 'diffserv', 'totalLen', 'identification', 'frag', 'Offset', 'ttl', 'protocol', 'hdrChecksum', 'srcAddr', 'dstAddr']]
 
-    ipv4_2[0] = ['8', '8', '16', '16', '16', '8', '8', '16', '32', '32']
-    ipv4_2[1] = ['versionIhl', 'diffserv', 'totalLen', 'identification', 'fragOffset', 'ttl', 'protocol', 'hdrChecksum', 'srcAddr', 'dstAddr']
+    ipv4_2 = [['8', '8', '16', '16', '16', '8', '8', '16', '32', '32'],
+                ['versionIhl', 'diffserv', 'totalLen', 'identification', 'fragOffset', 'ttl', 'protocol', 'hdrChecksum', 'srcAddr', 'dstAddr']]
 
-    ipv6[0] = ['4', '8', '20', '16', '8', '8', '128', '128']
-    ipv6[1] = ['version', 'trafficClass', 'flowLabel', 'payloadLen', 'nextHdr', 'hopLimit', 'srcAddr', 'dstAddr']
+    ipv6 = [['4', '8', '20', '16', '8', '8', '128', '128'],
+            ['version', 'trafficClass', 'flowLabel', 'payloadLen', 'nextHdr', 'hopLimit', 'srcAddr', 'dstAddr']]
 
-    udp[0] = ['16', '16', '16', '16']
-    udp[1] = ['srcPort', 'dstPort', 'length_', 'checksum']
+    udp = [['16', '16', '16', '16'],
+            ['srcPort', 'dstPort', 'length_', 'checksum']]
 
-    tcp[0] = ['16', '16', '32', '32', '4', '4', '8', '16', '16', '16']
-    tcp[1] = ['srcPort', 'dstPort', 'seqNo', 'ackNo', 'dataOffset', 'res', 'flags', 'window', 'checksum', 'urgentPtr']
+    tcp = [['16', '16', '32', '32', '4', '4', '8', '16', '16', '16'],
+            ['srcPort', 'dstPort', 'seqNo', 'ackNo', 'dataOffset', 'res', 'flags', 'window', 'checksum', 'urgentPtr']]
 
-    vxlan[0] = ['8', '24', '24', '8']
-    vxlan[1] = ['flags', 'reserved', 'vni', 'reserved2']
+    vxlan = [['8', '24', '24', '8'],
+            ['flags', 'reserved', 'vni', 'reserved2']]
 
-    arp_t[0] = ['16', '16', '8', '8', '16']
-    arp_t[1] = ['htype', 'ptype', 'hlength', 'plength', 'opcode']
+    arp_t = [['16', '16', '8', '8', '16'],
+            ['htype', 'ptype', 'hlength', 'plength', 'opcode']]
 
-    arp_ipv4_t[0] = ['16', '16', '8', '8', '16']
-    arp_ipv4_t[1] = ['htype', 'ptype', 'hlength', 'plength', 'opcode']
+    arp_ipv4_t = [['16', '16', '8', '8', '16'],
+                    ['htype', 'ptype', 'hlength', 'plength', 'opcode']]
 
-    gre[0] = ['1', '1', '1', '1', '1', '3', '5', '3', '16']
-    gre[1] = ['C', 'R', 'K', 'S', 's', 'recurse', 'flags', 'ver', 'proto']
-
-    bb[0] = ['16', '8', '8']
-    bb[1] = ['r2', 'c3', 'c2']
+    gre = [['1', '1', '1', '1', '1', '3', '5', '3', '16'],
+            ['C', 'R', 'K', 'S', 's', 'recurse', 'flags', 'ver', 'proto']]
+    
+    bb = [['16', '8', '8'],
+            ['r2', 'c3', 'c2']]
 
     headers     = [ethernet, arp_t, arp_ipv4_t, ipv4,   ipv4_2, ipv6,   udp,   tcp,   vxlan,   gre,   bb]
     header_list = ['l2',     'arp', 'arp',      'ipv4', 'ipv4', 'ipv6', 'udp', 'tcp', 'vxlan', 'gre', 'bb']
