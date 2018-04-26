@@ -162,18 +162,15 @@ def create_pkt_hdrs(protoName, p, macdst, macsrc, ipdst, ipsrc, portdst, portsrc
 			#add code for UDP
 			if (src.settings.proto_selected_tr==6):
 				hdrlist[hdrlist.index('trL')] = src.settings.udpL
-		print hdrlist
 
 		#Create list of headers required for the user specified protocol
-		for protoName,fieldList in hdrlist:
+		for protoStr,fieldList in hdrlist:
 			for i in range(len(layers)):
-				str2 = str(layers[i])
-				str3 = str2.split('.', str2.count('.'))
-				str4 = str3[str2.count('.')].split('\'', 1 )
-				if protoName == str4[0]:
-					# print "found %i %s" % (i,str4[0])
+				strTemp = str(layers[i])
+				protoName = strTemp[strTemp.rfind('.')+1:].split('\'')[0]
+				if protoStr == protoName:
 					sclass.append(layers[i])
-		print "sclass is %s" %(sclass)
+		# print "sclass is %s" %(sclass)
 
 		#creating the layers for packet header
 		pkt_hdr = sclass[0]()
@@ -183,12 +180,10 @@ def create_pkt_hdrs(protoName, p, macdst, macsrc, ipdst, ipsrc, portdst, portsrc
 		# print pkt_hdr.show(dump=True)
 
 		#Updating the header fields
-		print "preparing hdr fields"
-		for protoName,fieldList in hdrlist:
-			# print "protocol %s and fields %s" % (protoName, fieldList)
+		for protoStr,fieldList in hdrlist:
 			for i in range(len(fieldList)):
-				setattr(pkt_hdr[protoName], fieldList[i], l2_data[i][p])
-		print "updated" + pkt_hdr.show(dump=True)	
+				setattr(pkt_hdr[protoStr], fieldList[i], l2_data[i][p])
+		# print "updated" + pkt_hdr.show(dump=True)
 
 	return pkt_hdr
 
