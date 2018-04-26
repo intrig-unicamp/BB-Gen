@@ -71,6 +71,8 @@ def init():
     global header_list
     global headers
 
+    global ethL
+
     #Initial arguments
     entries = 10
     pname = ''
@@ -88,14 +90,14 @@ def init():
 
     #Supported protocols list
     proto_list = {
-    				'ipv4': 0,
-    				'ipv6': 1,
-    				'vxlan': 2,
-    				'gre': 3,
-    				'l2': 4,
-    				'tcp': 5,
-    				'udp': 6,
-    				'bb': 7}
+                'ipv4': 0,
+                'ipv6': 1,
+                'vxlan': 2,
+                'gre': 3,
+                'l2': 4,
+                'tcp': 5,
+                'udp': 6,
+                'bb': 7}
 
     #Default values
     proto_selected = 'ipv4'
@@ -114,7 +116,7 @@ def init():
     #Protocol definition - for P4 use cases
     #Add the definition of the fields of the new protocol and include in headers and header_list
 
-    ethernet = [['48', '48', '16'], 
+    ethernet = [['48', '48', '16'],
                 ['dstAddr', 'srcAddr', 'etherType']]
 
     ipv4 = [['4', '4', '8', '16', '16', '3', '13', '8', '8', '16', '32', '32'],
@@ -143,35 +145,43 @@ def init():
 
     gre = [['1', '1', '1', '1', '1', '3', '5', '3', '16'],
             ['C', 'R', 'K', 'S', 's', 'recurse', 'flags', 'ver', 'proto']]
-    
+
     bb = [['16', '8', '8'],
             ['r2', 'c3', 'c2']]
 
     headers     = [ethernet, arp_t, arp_ipv4_t, ipv4,   ipv4_2, ipv6,   udp,   tcp,   vxlan,   gre,   bb]
     header_list = ['l2',     'arp', 'arp',      'ipv4', 'ipv4', 'ipv6', 'udp', 'tcp', 'vxlan', 'gre', 'bb']
 
-    	# l2_data = [macdst,macsrc]
-		# print l2_data
-		# l2_proto_data_field = ['Ether',['dst','src']]
-		# proto_data_field = list(l2_proto_data_field)
-		# print l2_proto_data_field[0]
-		# print l2_proto_data_field[1][0]
 
-    # ipL    = [['IP',['dst','src']],[ipdst,ipsrc]]
-    # ip6L   = [['IPv6',['dst','src']],[ipdst,ipsrc]]
-    # vxlanL = []
-    # greL   = []
-    # ethL   = [['Ether',['dst','src']],[macdst,macsrc]]
-    # tcpL   = [['TCP',['dport','sport']],[portdst,portsrc]]
-    # udpL   = [['UDP',['dport','sport']],[portdst,portsrc]]
-    # bbL    = []
-    #     # proto_list = {
-    	# 			'ipv4': 0,
-    	# 			'ipv6': 1,
-    	# 			'vxlan': 2,
-    	# 			'gre': 3,
-    	# 			'l2': 4,
-    	# 			'tcp': 5,
-    	# 			'udp': 6,
-    	# 			'bb': 7}
-    # proto_data_field = list(ipL,ip6L,vxlan,gre,ethL,tcpL,udpL,bbL)
+    global tcpL
+
+    ipL    = ['IP',['dst','src']]
+    ip6L   = ['IPv6',['dst','src']]
+#     vxlanL = [['VXLAN',['vni']],[100]]
+#     greL   = [['GRE',[]],[]]
+#     ethL   = [['Ether',['dst','src']],[macdst,macsrc]]
+    ethL   = ['Ether',['dst','src']]
+
+    tcpL   = ['TCP',['dport','sport']]
+    udpL   = ['UDP',['dport','sport']]
+    bbL    = ['BB',['r2','c3','c2']]
+
+    
+#     proto_data_field = list(ipL,ip6L,vxlan,gre,ethL,tcpL,udpL,bbL)
+#     global proto_layer_func_dict
+#     proto_layer_func_dict = {'IP':IP(),'IPv6':IPv6(),'Ether':Ether(),
+#                                 'TCP':TCP(),'UDP':UDP(),'GRE':GRE(),'VXLAN':VXLAN(),'BB':BB()}
+#     proto_layer_func_dict = {'Ether':Ether(),'BB':BB()}
+#     global proto_layer_list
+#     proto_layer_list = [Ether(),BB()]
+
+    global proto_list_temp
+    proto_list_temp = {
+    				'ipv4': [0,[ethL,ipL,'trL']],
+    				'ipv6': [1,[ethL,ip6L,'trL']],
+    				# 'vxlan': [2,[ethL]],
+    				# 'gre': [3,[ethL]],
+    				'l2': [4,[ethL]],
+    				# 'tcp': [5,[ethL]],
+    				# 'udp': [6,[ethL]],
+    				'bb': [7,[bbL]]}

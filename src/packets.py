@@ -122,7 +122,7 @@ def create_trace(prot, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, 
 	return cfile
 
 def remove_copy_pcap(fprefix, entries, dist_name):
-	rem = "rm %s_%s_%d_%s_*"  % (fprefix, src.settings.proto_selected, entries, src.settings.dist_name)
+	rem = "rm %s_%s_%d_%s_*"  % (fprefix, src.settings.proto_selected, entries, dist_name)
 	os.system(rem)
 	return
 
@@ -145,10 +145,52 @@ def create_pkt_hdrs(protoName, p, macdst, macsrc, ipdst, ipsrc, portdst, portsrc
 			pkt_hdr = Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/GRE()/IP(dst=ipdst[p],src=ipsrc[p])/TCP(dport=portdst[p], sport=portsrc[p])
 		else:
 			pkt_hdr = Ether(dst=macdst[p],src=macsrc[p])/IP(dst=ipdst[p],src=ipsrc[p])/GRE()/IP(dst=ipdst[p],src=ipsrc[p])/UDP(dport=portdst[p], sport=portsrc[p])
-	elif protoName == "l2":
-		pkt_hdr = Ether(dst=macdst[p],src=macsrc[p])
 	elif protoName == "bb":
 		pkt_hdr = BB(r2=num_gen[p],c3=num_gen[p],c2=num_gen[p])
+
+	else:
+		l2_data = [macdst,macsrc]
+		# print l2_data
+		sclass = []
+		layers = scapy.config.Conf.layers
+		hdrlist = src.settings.proto_list_temp[protoName][1]
+
+		#selecting TCP/UDP header
+		if 'trL' in hdrlist:
+			if (src.settings.proto_selected_tr==5):
+				# src.settings.proto_list_temp[protoName][1].append(src.settings.tcpL)
+				hdrlist[hdrlist.index('trL')] = src.settings.tcpL
+			#add code for UDP
+		print hdrlist
+
+		#Create list of headers required for the user specified protocol
+		for protoName,fieldList in hdrlist:
+			if (protoName == 'trL'): 
+				protoName = 'TCP' if (src.settings.proto_selected_tr==5) else 'UDP'
+			# print "%s" %(protoName)
+			for i in range(len(layers)):
+				str2 = str(layers[i])
+				str3 = str2.split('.', str2.count('.'))
+				str4 = str3[str2.count('.')].split('\'', 1 )
+				if protoName == str4[0]:
+					print "found %i %s" % (i,str4[0])
+					sclass.append(layers[i])
+			print "sclass is %s" %(sclass)
+
+		#creating the layers for packet header
+		pkt_hdr = sclass[0]()
+		for i in range(len(sclass)):
+			if i > 0:
+				pkt_hdr =  pkt_hdr/sclass[i]()
+		print pkt_hdr.show(dump=True)
+
+		#Updating the header fields
+		print "preparing hdr fields"
+		for protoName,fieldList in hdrlist:
+			# print "protocol %s and fields %s" % (protoName, fieldList)
+			for i in range(len(fieldList)):
+				setattr(pkt_hdr[protoName], fieldList[i], l2_data[i][p])
+		print "updated" + pkt_hdr.show(dump=True)	
 
 	return pkt_hdr
 
@@ -178,7 +220,7 @@ class create_pkt:
 		else:
 			pprefix = "./PCAP/" + src.settings.pname
 			tprefix = "./PCAP/" + src.settings.pname
-
+		print("User Specified Data: %s" % (src.settings.proto_selected))
 		# usr_data = "1234"
 		cfile = 0
 		for val in src.settings.packet_sizes:
