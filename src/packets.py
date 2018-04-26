@@ -158,31 +158,29 @@ def create_pkt_hdrs(protoName, p, macdst, macsrc, ipdst, ipsrc, portdst, portsrc
 		#selecting TCP/UDP header
 		if 'trL' in hdrlist:
 			if (src.settings.proto_selected_tr==5):
-				# src.settings.proto_list_temp[protoName][1].append(src.settings.tcpL)
 				hdrlist[hdrlist.index('trL')] = src.settings.tcpL
 			#add code for UDP
+			if (src.settings.proto_selected_tr==6):
+				hdrlist[hdrlist.index('trL')] = src.settings.udpL
 		print hdrlist
 
 		#Create list of headers required for the user specified protocol
 		for protoName,fieldList in hdrlist:
-			if (protoName == 'trL'): 
-				protoName = 'TCP' if (src.settings.proto_selected_tr==5) else 'UDP'
-			# print "%s" %(protoName)
 			for i in range(len(layers)):
 				str2 = str(layers[i])
 				str3 = str2.split('.', str2.count('.'))
 				str4 = str3[str2.count('.')].split('\'', 1 )
 				if protoName == str4[0]:
-					print "found %i %s" % (i,str4[0])
+					# print "found %i %s" % (i,str4[0])
 					sclass.append(layers[i])
-			print "sclass is %s" %(sclass)
+		print "sclass is %s" %(sclass)
 
 		#creating the layers for packet header
 		pkt_hdr = sclass[0]()
 		for i in range(len(sclass)):
 			if i > 0:
 				pkt_hdr =  pkt_hdr/sclass[i]()
-		print pkt_hdr.show(dump=True)
+		# print pkt_hdr.show(dump=True)
 
 		#Updating the header fields
 		print "preparing hdr fields"
@@ -220,7 +218,7 @@ class create_pkt:
 		else:
 			pprefix = "./PCAP/" + src.settings.pname
 			tprefix = "./PCAP/" + src.settings.pname
-		print("User Specified Data: %s" % (src.settings.proto_selected))
+
 		# usr_data = "1234"
 		cfile = 0
 		for val in src.settings.packet_sizes:

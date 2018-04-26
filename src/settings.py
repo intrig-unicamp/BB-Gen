@@ -71,8 +71,6 @@ def init():
     global header_list
     global headers
 
-    global ethL
-
     #Initial arguments
     entries = 10
     pname = ''
@@ -152,7 +150,7 @@ def init():
     headers     = [ethernet, arp_t, arp_ipv4_t, ipv4,   ipv4_2, ipv6,   udp,   tcp,   vxlan,   gre,   bb]
     header_list = ['l2',     'arp', 'arp',      'ipv4', 'ipv4', 'ipv6', 'udp', 'tcp', 'vxlan', 'gre', 'bb']
 
-
+    global ethL
     global tcpL
 
     ipL    = ['IP',['dst','src']]
@@ -161,19 +159,9 @@ def init():
 #     greL   = [['GRE',[]],[]]
 #     ethL   = [['Ether',['dst','src']],[macdst,macsrc]]
     ethL   = ['Ether',['dst','src']]
-
     tcpL   = ['TCP',['dport','sport']]
     udpL   = ['UDP',['dport','sport']]
     bbL    = ['BB',['r2','c3','c2']]
-
-    
-#     proto_data_field = list(ipL,ip6L,vxlan,gre,ethL,tcpL,udpL,bbL)
-#     global proto_layer_func_dict
-#     proto_layer_func_dict = {'IP':IP(),'IPv6':IPv6(),'Ether':Ether(),
-#                                 'TCP':TCP(),'UDP':UDP(),'GRE':GRE(),'VXLAN':VXLAN(),'BB':BB()}
-#     proto_layer_func_dict = {'Ether':Ether(),'BB':BB()}
-#     global proto_layer_list
-#     proto_layer_list = [Ether(),BB()]
 
     global proto_list_temp
     proto_list_temp = {
