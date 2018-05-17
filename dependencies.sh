@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bash
 
 # BSD 3-Clause License
 
