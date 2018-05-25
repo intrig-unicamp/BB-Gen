@@ -7,6 +7,15 @@ BB-Gen is simple CLI based packet crafter written in Python over Scapy library t
 [![Build Status](https://travis-ci.org/intrig-unicamp/BB-Gen.svg?branch=master)](https://travis-ci.org/intrig-unicamp/BB-Gen)
 [![License: BSD v3](https://img.shields.io/badge/License-BSD%20v3-blue.svg)](LICENSE)
 
+<br>
+<hr>
+<p align="center">
+If you find this useful, please don't forget to star ⭐️ the repo, as this will help to promote the project.<br>
+Follow us on <a href="https://github.com/intrig-unicamp?tab=repositories">GitHub</a> to keep updated about this project and others</a>.
+</p>
+<hr>
+<br>
+
 ## Installation  
 step 1: $ `sudo apt-get install git`  
 step 2: $ `git clone --recursive https://github.com/intrig-unicamp/BB-Gen.git`  
