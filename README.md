@@ -101,6 +101,9 @@ $ `python main.py -p4 examples/p4_src/l3_fwd_ipv6.p4 -n 100`
   - GRE
   - VXLAN
 
+## Contributing
+PRs are very much appreciated. For bugs/features consider creating an issue before sending a PR.
+
 ## Team
 Fabricio E Rodriguez Cesen (frodri@dca.fee.unicamp.br)  
 P Gyanesh Kumar Patra (gyanesh@dca.fee.unicamp.br)  
