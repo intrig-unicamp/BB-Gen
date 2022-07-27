@@ -35,6 +35,7 @@ import sys
 import random
 from random import shuffle
 from scapy.all import *
+import src.settings
 
 # The create_pkt class generates the pkts list to be added to the output file
 # creates the traces and PCAP from the data.
@@ -119,18 +120,32 @@ def create_trace(prot, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, 
 	os.system(FILE)
 	return cfile
 
-def remove_copy_pcap(fprefix, prot, entries, dist_name):
-	if prot == 0:
-		rem = "rm %s_ipv4_%d_%s_*"  % (fprefix, entries, dist_name)
-	if prot == 1:
-		rem = "rm %s_ipv6_%d_%s_*"  % (fprefix, entries, dist_name)
-	if prot == 2:
-		rem = "rm %s_vxlan_%d_%s_*"  % (fprefix, entries, dist_name)
-	if prot == 3:
-		rem = "rm %s_gre_%d_%s_*"  % (fprefix, entries, dist_name)
-	if prot == 4:
-		rem = "rm %s_l2_%d_%s_*"  % (fprefix, entries, dist_name)
-	os.system(rem)
+def remove_copy_pcap(fprefix, prot, entries, dist_name, burst, b_count):
+	if burst != 'none':
+		for i in range(entries):
+			if prot == 0:
+				rem = "rm %s_%d_ipv4_%d_%s_%d_*"  % (fprefix, b_count, entries, dist_name, i)
+			if prot == 1:
+				rem = "rm %s_%d_ipv6_%d_%s_%d_*"  % (fprefix, b_count, entries, dist_name, i)
+			if prot == 2:
+				rem = "rm %s_%d_vxlan_%d_%s_%d_*"  % (fprefix, b_count, entries, dist_name, i)
+			if prot == 3:
+				rem = "rm %s_%d_gre_%d_%s_%d_*"  % (fprefix, b_count, entries, dist_name, i)
+			if prot == 4:
+				rem = "rm %s_%d_l2_%d_%s_%d_*"  % (fprefix, b_count, entries, dist_name, i)
+			os.system(rem)
+	else:
+		if prot == 0:
+			rem = "rm %s_ipv4_%d_%s_*"  % (fprefix, entries, dist_name)
+		if prot == 1:
+			rem = "rm %s_ipv6_%d_%s_*"  % (fprefix, entries, dist_name)
+		if prot == 2:
+			rem = "rm %s_vxlan_%d_%s_*"  % (fprefix, entries, dist_name)
+		if prot == 3:
+			rem = "rm %s_gre_%d_%s_*"  % (fprefix, entries, dist_name)
+		if prot == 4:
+			rem = "rm %s_l2_%d_%s_*"  % (fprefix, entries, dist_name)
+		os.system(rem)
 	return
 
 def create_pkt_hdrs(protoName, p, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, tra, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e):
@@ -163,13 +178,24 @@ class create_pkt:
 		self.pkts = []
 
 
-	def pkt_gen(self, entries, pkt_size_list, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, protoID, protoName, tra, pname_arg, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e, use_case, usr_data, macsrc_h, macdst_h, dist_name, performance):
+	def pkt_gen(self, entries, pkt_size_list, macdst, macsrc, ipdst, ipsrc, portdst, portsrc, protoID, protoName, tra, pname_arg, macdst_e, macsrc_e, ipdst_e, ipsrc_e, portdst_e, portsrc_e, use_case, usr_data, macsrc_h, macdst_h, dist_name, performance, burst, b_count):
 		
+		f = 0
+
+		if burst != 'none':
+			pkt_size_list = src.settings.burst_list_val[b_count]
+			entries = src.settings.burst_len[b_count]
+			
+			pname_arg = "burst"
+			performance = False
+
+			f = 1
+
 		mil = 1
 		if entries == 1000000:
 			entries = 10000
 			mil = 100
-		f = 0
+		
 		filenames = []
 		first = 0
 
@@ -187,6 +213,7 @@ class create_pkt:
 
 		# usr_data = "1234"
 		cfile = 0
+		cpkt = 0
 		for val in pkt_size_list:
 			pkt_size_proto = 82 if ((protoName=="gre") & (val < 82)) else (114 if ((protoName=="vxlan") & (val < 114)) else val)
 			pkt_wsize_proto = pkt_size_proto - 4
@@ -206,8 +233,14 @@ class create_pkt:
 					if f == 0:
 						cfile = create_trace(protoID, macsrc, macdst, ipsrc, ipdst, portsrc, portdst, entries, mil, p, macsrc_e, macdst_e, ipsrc_e, ipdst_e, portsrc_e, portdst_e, use_case, macsrc_h, macdst_h, tprefix, dist_name, cfile)
 
-				pname = "%s_%s_%d_%s_%d.%dbytes.pcap" % (pprefix, protoName, entries, dist_name, j, pkt_size_proto)
-				namef = "%s_%s_%d_%s.%dbytes.pcap" % (pprefix, protoName, entries*mil, dist_name, pkt_size_proto)
+				if burst != 'none':
+					pname = "%s_%d_%s_%d_%s_%d_%d.%dbytes.pcap" % (pprefix, b_count, protoName, entries, dist_name, cpkt, j, pkt_size_proto)
+					namef = "%s_%d_%s_%d_%s_%d.%dbytes.pcap" % (pprefix, b_count, protoName, entries*mil, dist_name, cpkt, pkt_size_proto)
+				else:
+					pname = "%s_%s_%d_%s_%d_.%dbytes.pcap" % (pprefix, protoName, entries, dist_name, j, pkt_size_proto)
+					namef = "%s_%s_%d_%s.%dbytes.pcap" % (pprefix, protoName, entries*mil, dist_name, pkt_size_proto)
+
+				cpkt = cpkt + 1
 
 				filenames.append(pname)
 
@@ -218,7 +251,7 @@ class create_pkt:
 			#Create final PCAP
 			with open(namef, 'w') as outfile:
 				for fname in filenames:
-					with open(fname) as infile:
+					with open(fname, 'r') as infile:
 						if first == 1:
 							infile.seek(24)
 						first = 1
@@ -229,4 +262,4 @@ class create_pkt:
 			f = 1
 
 		#Remove temporary files
-		remove_copy_pcap(pprefix, protoID, entries, dist_name)
+		remove_copy_pcap(pprefix, protoID, entries, dist_name, burst, b_count)

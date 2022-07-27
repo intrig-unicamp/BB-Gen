@@ -46,7 +46,9 @@ from src.type import *
 from src.packets import *
 from lib.arg_parse import *
 from src.contrib.vxlan import *
-from src.p4_support.transpiler import *
+# from src.p4_support.transpiler import *
+from src.read_burst import *
+
 
 src.settings.init()
 
@@ -55,7 +57,7 @@ debug_flag = False
 def log(s):
     global debug_flag
     if debug_flag == True:
-        print s
+        print(s)
 
 parser = ArgumentParser(description='BB-gen PCAP generator', formatter_class=SmartFormatter)
 
@@ -124,11 +126,17 @@ parser.add_argument('-perf', '--performance',
 					" Default: False", 
 					dest='performance', action='store_true', 
 					default=False)
+parser.add_argument('-b','--burst',metavar='', 
+				help='R|Burst PCAP generation', 
+					dest='burst', 
+					action='store', 
+					default="none")
 parser.add_argument('-d','--debug', 
 				help='Debug enable', 
 					dest='debug_flag', 
 					action='store_true', 
 					default=False)
+
 
 parser.add_argument('-v', action='version', version='BB-gen 1.0')
 
@@ -169,6 +177,17 @@ log("User Specified Data: %s" % (usr_data))
 #Get Protocol type, transport protocol and distribution
 e = pkt_type('Protocol')
 
+#Burst Code
+burst = args.burst
+
+if burst != 'none':
+	b = run_getdata('B')
+	b.principal(burst)
+	p4_code = 'none'
+else:
+	src.settings.burst_len = [0]
+	
+
 #If P4 code is defined, then run the transpiler and get the Protocol
 #The Headers information will be stored at src.settings
 if p4_code != 'none':
@@ -195,57 +214,63 @@ e.get_random(val_random)
 log("Random IP %s, Random MAC %s, Random Protocol %s" % (val_random[0], val_random[1], val_random[2]))
 log("Random data size: %s" % (e.pktsize))
 
-#Get IP, MAC and Port list
-log("Principal Headers info")
 f = generator('principal')
-f.ip_gen(entries,e.ranip,e.protoID)
-log("IP source list: \n %s" % (f.ipsrc))
-log("IP destination list: \n %s" % (f.ipdst))
-f.mac_gen(entries,e.ranmac)
-log("MAC source list: \n %s" % (f.macsrc))
-log("MAC destination list: \n %s" % (f.macdst))
-f.port_gen(entries,e.ranport)
-log("Port source list: \n %s" % (f.portsrc))
-log("Port destination list: \n %s" % (f.portdst))
-
-#Get encapsulated IP, MAC and Port list, for VXLAN and GRE
-log("Encapsulated Headers info")
 g = generator('encap')
-g.ip_gen(entries,e.ranip,e.protoID)
-log("IP source list: \n %s" % (g.ipsrc))
-log("IP destination list: \n %s" % (g.ipdst))
-g.mac_gen(entries,e.ranmac)
-log("MAC source list: \n %s" % (g.macsrc))
-log("MAC destination list: \n %s" % (g.macdst))
-g.port_gen(entries,e.ranport)
-log("Port source list: \n %s" % (g.portsrc))
-log("Port destination list: \n %s" % (g.portdst))
-
-#Create PCAP
 h = create_pkt('A')
-h.pkt_gen(
-			entries,
-			packet_sizes, 
-			f.macdst, 
-			f.macsrc, 
-			f.ipdst, 
-			f.ipsrc, 
-			f.portdst, 
-			f.portsrc,
-			e.protoID,
-			e.protoName, 
-			e.tra, 
-			pname, 
-			g.macdst, 
-			g.macsrc, 
-			g.ipdst, 
-			g.ipsrc, 
-			g.portdst, 
-			g.portsrc,
-			use_case,
-			usr_data,
-			f.macsrc_h,
-			f.macdst_h,
-			e.dist_name,
-			performance
-		)
+
+for i in range(len(src.settings.burst_len)):
+	if burst != 'none':
+		entries = src.settings.burst_len[i]
+	#Get IP, MAC and Port list
+	log("Principal Headers info")
+	f.ip_gen(entries,e.ranip,e.protoID)
+	log("IP source list: \n %s" % (f.ipsrc))
+	log("IP destination list: \n %s" % (f.ipdst))
+	f.mac_gen(entries,e.ranmac)
+	log("MAC source list: \n %s" % (f.macsrc))
+	log("MAC destination list: \n %s" % (f.macdst))
+	f.port_gen(entries,e.ranport)
+	log("Port source list: \n %s" % (f.portsrc))
+	log("Port destination list: \n %s" % (f.portdst))
+
+	#Get encapsulated IP, MAC and Port list, for VXLAN and GRE
+	log("Encapsulated Headers info")
+	g.ip_gen(entries,e.ranip,e.protoID)
+	log("IP source list: \n %s" % (g.ipsrc))
+	log("IP destination list: \n %s" % (g.ipdst))
+	g.mac_gen(entries,e.ranmac)
+	log("MAC source list: \n %s" % (g.macsrc))
+	log("MAC destination list: \n %s" % (g.macdst))
+	g.port_gen(entries,e.ranport)
+	log("Port source list: \n %s" % (g.portsrc))
+	log("Port destination list: \n %s" % (g.portdst))
+
+	#Create PCAP
+	h.pkt_gen(
+				entries,
+				packet_sizes, 
+				f.macdst, 
+				f.macsrc, 
+				f.ipdst, 
+				f.ipsrc, 
+				f.portdst, 
+				f.portsrc,
+				e.protoID,
+				e.protoName, 
+				e.tra, 
+				pname, 
+				g.macdst, 
+				g.macsrc, 
+				g.ipdst, 
+				g.ipsrc, 
+				g.portdst, 
+				g.portsrc,
+				use_case,
+				usr_data,
+				f.macsrc_h,
+				f.macdst_h,
+				e.dist_name,
+				performance,
+				burst,
+				i
+			)

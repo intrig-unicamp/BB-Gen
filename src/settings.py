@@ -33,5 +33,10 @@
 def init():
     global header_list_len
     global header_list_val
+    global burst_len
+    global burst_list_val
+
     header_list_len = []
     header_list_val = []
+    burst_len = []
+    burst_list_val = []

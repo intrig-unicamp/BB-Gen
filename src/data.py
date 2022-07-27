@@ -55,6 +55,10 @@ class generator:
 
 	#Generates IP address
 	def ip_gen(self, entries, dist, data):
+		
+		del self.ipdst[:]
+		del self.ipsrc[:]
+
 		pkts = []
 		r = []
 		for i in range(1,254):
@@ -110,6 +114,12 @@ class generator:
 
 	#Generates MAC address
 	def mac_gen(self, entries, dist):
+		
+		del self.macdst[:]
+		del self.macsrc[:]
+		del self.macdst_h[:]
+		del self.macsrc_h[:]
+
 		pkts = []
 		k = []
 		for i in range(16):
@@ -161,6 +171,10 @@ class generator:
 
 	#Generates Port numbers from 49152 to 65535
 	def port_gen(self, entries, dist):
+		
+		del self.portsrc[:]
+		del self.portdst[:]
+
 		u = []
 		portsrc_c = 0
 		porrdst_c = 0
