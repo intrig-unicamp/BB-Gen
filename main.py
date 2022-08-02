@@ -220,8 +220,9 @@ h = create_pkt('A')
 
 for i in range(len(src.settings.burst_len)):
 	if burst != 'none':
-		entries = src.settings.burst_len[i]
-		print(i)
+		entries = 1
+		percentage = (i*100)/int(len(src.settings.burst_len))
+		print("%d%%" % (percentage))
 		if src.settings.burst_len[i] == 0:
 			continue
 	#Get IP, MAC and Port list
