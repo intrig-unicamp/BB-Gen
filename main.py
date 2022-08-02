@@ -221,6 +221,9 @@ h = create_pkt('A')
 for i in range(len(src.settings.burst_len)):
 	if burst != 'none':
 		entries = src.settings.burst_len[i]
+		print(i)
+		if src.settings.burst_len[i] == 0:
+			continue
 	#Get IP, MAC and Port list
 	log("Principal Headers info")
 	f.ip_gen(entries,e.ranip,e.protoID)
