@@ -9,6 +9,7 @@ def readdata(file):
     if len(lines)>0:
         for i in range(len(lines)):
             data.append(lines[i].split(' '))
+            data[i] = data[i][:-1]
     return data, lines
 
 def getdata(f):

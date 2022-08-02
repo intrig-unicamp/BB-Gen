@@ -124,7 +124,7 @@ def remove_copy_pcap(fprefix, prot, entries, dist_name, burst, b_count):
 	if burst != 'none':
 		for i in range(entries):
 			if prot == 0:
-				rem = "rm %s_%d_ipv4_%d_%s_%d_*"  % (fprefix, b_count, entries, dist_name, i)
+				rem = "rm %s_%d_ipv4_%d_*"  % (fprefix, b_count, entries)
 			if prot == 1:
 				rem = "rm %s_%d_ipv6_%d_%s_%d_*"  % (fprefix, b_count, entries, dist_name, i)
 			if prot == 2:
@@ -184,7 +184,7 @@ class create_pkt:
 
 		if burst != 'none':
 			pkt_size_list = src.settings.burst_list_val[b_count]
-			entries = src.settings.burst_len[b_count]
+			entries = 1
 			
 			pname_arg = "burst"
 			performance = False
@@ -236,20 +236,37 @@ class create_pkt:
 				if burst != 'none':
 					pname = "%s_%d_%s_%d_%s_%d_%d.%dbytes.pcap" % (pprefix, b_count, protoName, entries, dist_name, cpkt, j, pkt_size_proto)
 					namef = "%s_%d_%s_%d_%s_%d.%dbytes.pcap" % (pprefix, b_count, protoName, entries*mil, dist_name, cpkt, pkt_size_proto)
+					finalpcap = "%s_%d_%s_%s.pcap" % (pprefix, b_count, protoName, dist_name)
 				else:
 					pname = "%s_%s_%d_%s_%d_.%dbytes.pcap" % (pprefix, protoName, entries, dist_name, j, pkt_size_proto)
 					namef = "%s_%s_%d_%s.%dbytes.pcap" % (pprefix, protoName, entries*mil, dist_name, pkt_size_proto)
 
 				cpkt = cpkt + 1
 
-				filenames.append(pname)
+				filenames.append(namef)
 
 				#Create partials PCAPs
-				wrpcap(pname,self.pkts)
+				wrpcap(namef,self.pkts)
 				del self.pkts[:] #Don't delete this line
 
 			#Create final PCAP
-			with open(namef, 'w') as outfile:
+			if burst == 'none':
+				with open(namef, 'w') as outfile:
+					for fname in filenames:
+						with open(fname, 'r') as infile:
+							if first == 1:
+								infile.seek(24)
+							first = 1
+							for line in infile:
+								outfile.write(line)
+					first = 0
+				del filenames[:]
+				f = 1
+
+
+		#Create final PCAP
+		if burst != 'none':
+			with open(finalpcap, 'w') as outfile:
 				for fname in filenames:
 					with open(fname, 'r') as infile:
 						if first == 1:
@@ -261,5 +278,5 @@ class create_pkt:
 			del filenames[:]
 			f = 1
 
-		#Remove temporary files
+		#Remove temporary filess
 		remove_copy_pcap(pprefix, protoID, entries, dist_name, burst, b_count)
